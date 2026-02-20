@@ -1,46 +1,52 @@
 import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { AuthProvider } from '@/contexts/AuthContext'
+import Navigation from '@/components/Navigation'
+import HeroSection from '@/components/HeroSection'
+import StatsBar from '@/components/StatsBar'
+import HowItWorks from '@/components/HowItWorks'
+import Features from '@/components/Features'
+import MascotsSection from '@/components/MascotsSection'
+import CallToAction from '@/components/CallToAction'
+import FAQ from '@/components/FAQ'
+import Footer from '@/components/Footer'
+
+function HomePage() {
+  return (
+    <>
+      <HeroSection />
+      <StatsBar />
+      <HowItWorks />
+      <Features />
+      <MascotsSection />
+      <CallToAction />
+      <FAQ />
+    </>
+  )
+}
+
+function NBAPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+      <p className="text-gray-400 text-xl">NBA Section — Coming Soon</p>
+    </div>
+  )
+}
 
 function App() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0a1628 0%, #1D428A 100%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      color: 'white',
-      textAlign: 'center',
-      padding: '20px'
-    }}>
-      <h1 style={{
-        fontSize: 'clamp(2rem, 5vw, 4rem)',
-        fontWeight: 900,
-        marginBottom: '16px',
-        letterSpacing: '-1px'
-      }}>
-        <span style={{ color: '#00d4ff' }}>KYNETICS</span> SPORTS
-      </h1>
-      <p style={{
-        fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-        opacity: 0.7,
-        maxWidth: '500px'
-      }}>
-        AI-Powered NBA Predictions — Coming Soon
-      </p>
-      <div style={{
-        marginTop: '40px',
-        padding: '12px 24px',
-        background: 'rgba(0, 212, 255, 0.15)',
-        border: '1px solid rgba(0, 212, 255, 0.3)',
-        borderRadius: '8px',
-        fontSize: '14px',
-        color: '#00d4ff'
-      }}>
-        ✅ Site is live and running
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Navigation />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/nba" element={<NBAPage />} />
+          </Routes>
+        </main>
+        <Footer />
       </div>
-    </div>
+    </AuthProvider>
   )
 }
 
