@@ -11,6 +11,11 @@ import CallToAction from '@/components/CallToAction'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
 import NBAPage from '@/components/NBAPage'
+import TermsPage from '@/components/legal/TermsPage'
+import PrivacyPage from '@/components/legal/PrivacyPage'
+import CookiePage from '@/components/legal/CookiePage'
+import DisclaimerPage from '@/components/legal/DisclaimerPage'
+import ResponsibleGamingPage from '@/components/legal/ResponsibleGamingPage'
 
 function HomePage() {
   return (
@@ -35,6 +40,11 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/nba" element={<NBAPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/cookies" element={<CookiePage />} />
+            <Route path="/disclaimer" element={<DisclaimerPage />} />
+            <Route path="/responsible-gaming" element={<ResponsibleGamingPage />} />
           </Routes>
         </main>
         <Footer />
