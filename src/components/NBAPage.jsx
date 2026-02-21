@@ -2,14 +2,21 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Filter, Loader2, AlertCircle } from 'lucide-react'
 import GameCard from './GameCard'
+import GameDetailModal from './GameDetailModal'
 import AdminJSONPanel from './AdminJSONPanel'
 import { useNBAGames } from '@/hooks/useNBAGames'
 
 const NBAPage = () => {
   const today = new Date().toISOString().split('T')[0]
   const [currentDate, setCurrentDate] = useState(today)
-  const { games, loading, error, fetchGamesByDate } = useNBAGames()
   const [activeTab, setActiveTab] = useState('All')
+  const [selectedGame, setSelectedGame] = useState(null)
+
+  const {
+    games, loading, error,
+    fetchGamesByDate, deleteGame,
+    updateMascotImage, voteForTeam
+  } = useNBAGames()
 
   useEffect(() => {
     fetchGamesByDate(currentDate)
@@ -30,17 +37,31 @@ const NBAPage = () => {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
   })
 
+  const handleDelete = async (gameId) => {
+    const result = await deleteGame(gameId)
+    if (!result.success) alert('Failed to delete: ' + result.error)
+  }
+
+  const handleMascotUpload = async (gameId, team, file) => {
+    const result = await updateMascotImage(gameId, team, file)
+    if (!result.success) alert('Failed to upload: ' + result.error)
+  }
+
+  const handleVote = async (gameId, team) => {
+    return await voteForTeam(gameId, team)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pt-[70px]">
-      
+
       {/* Header */}
       <div className="bg-navy relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-white/5 skew-x-12 transform origin-top" />
         <div className="absolute bottom-0 left-0 w-1/4 h-full bg-black/10 -skew-x-12 transform origin-bottom" />
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex items-center gap-2 text-cyan font-bold mb-2 uppercase tracking-wider text-xs">
@@ -50,10 +71,9 @@ const NBAPage = () => {
               {formattedDate}
             </h1>
             <p className="text-blue-200 text-base md:text-lg max-w-xl mb-6">
-              AI-driven predictions for today's NBA matchups.
+              Predictions, stats, and matchups for today's NBA games.
             </p>
-            
-            {/* Date picker + game count */}
+
             <div className="flex flex-wrap items-center gap-4">
               <input
                 type="date"
@@ -118,7 +138,12 @@ const NBAPage = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <GameCard game={game} />
+                  <GameCard
+                    game={game}
+                    onOpenDetail={setSelectedGame}
+                    onDelete={handleDelete}
+                    onMascotUpload={handleMascotUpload}
+                  />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -132,9 +157,17 @@ const NBAPage = () => {
         )}
       </div>
 
+      {/* Detail Modal */}
+      <GameDetailModal
+        game={selectedGame}
+        isOpen={!!selectedGame}
+        onClose={() => setSelectedGame(null)}
+        onVote={handleVote}
+      />
+
       {/* Admin JSON Panel */}
-      <AdminJSONPanel 
-        onGamesUpdated={() => fetchGamesByDate(currentDate)} 
+      <AdminJSONPanel
+        onGamesUpdated={() => fetchGamesByDate(currentDate)}
         currentDate={currentDate}
       />
     </div>
