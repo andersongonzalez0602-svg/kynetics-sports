@@ -24,10 +24,10 @@ const HeroSection = () => {
             {/* Main heading */}
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] mb-6">
               <span className="bg-gradient-to-r from-navy to-red bg-clip-text text-transparent">
-                LAKERS
+                CLEVELAND
               </span>
               <br />
-              <span className="text-navy">61%</span>
+              <span className="text-navy">89%</span>
             </h1>
 
             {/* Description */}
@@ -55,20 +55,18 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right side - Mascot placeholder */}
+          {/* Right side - Hero mascot */}
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex justify-center"
           >
-            <div className="w-full max-w-md aspect-square rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center shadow-2xl overflow-hidden">
-              <div className="text-center text-white/60">
-                <div className="text-8xl mb-4">🐾</div>
-                <p className="text-sm font-semibold">Hero Mascot</p>
-                <p className="text-xs opacity-60">Upload via Supabase Storage</p>
-              </div>
-            </div>
+            <img 
+              src="/hero-mascot.png" 
+              alt="Lakers mascot" 
+              className="w-full max-w-md aspect-square rounded-3xl shadow-2xl object-cover"
+            />
           </motion.div>
         </div>
       </div>

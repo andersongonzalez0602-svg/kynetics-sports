@@ -55,10 +55,7 @@ const Navigation = () => {
           <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M8 6L24 16L8 26V6Z" fill="#00d4ff" opacity="0.8"/>
-                <path d="M4 10L20 20L4 28V10Z" fill="#1D428A"/>
-              </svg>
+              <img src="/logo.png" alt="Kynetics" className="h-8" />
               <span className="font-display text-xl font-extrabold tracking-tight">
                 <span className="text-navy">KYNETICS</span>{' '}
                 <span className="text-gray-800">SPORTS</span>

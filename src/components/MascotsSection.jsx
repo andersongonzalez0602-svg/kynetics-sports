@@ -3,12 +3,12 @@ import { motion } from 'framer-motion'
 import { Zap, Layers, Wifi } from 'lucide-react'
 
 const mascotSlots = [
-  { name: 'HOUSTON', color: '#CE1141' },
-  { name: 'LAKERS', color: '#552583' },
-  { name: 'BULLS', color: '#CE1141' },
-  { name: 'CELTICS', color: '#007A33' },
-  { name: 'NETS', color: '#000000' },
-  { name: 'HEAT', color: '#98002E' },
+  { name: 'HOUSTON', color: '#CE1141', image: '/mascot-houston.png' },
+  { name: 'LAKERS', color: '#552583', image: '/mascot-lakers.png' },
+  { name: 'BULLS', color: '#CE1141', image: '/mascot-bulls.png' },
+  { name: 'CELTICS', color: '#007A33', image: '/mascot-celtics.png' },
+  { name: 'NETS', color: '#000000', image: '/mascot-nets.png' },
+  { name: 'HEAT', color: '#98002E', image: '/mascot-heat.png' },
 ]
 
 const MascotsSection = () => {
@@ -75,7 +75,11 @@ const MascotsSection = () => {
                   className="aspect-square rounded-2xl flex items-center justify-center mb-3 shadow-md overflow-hidden"
                   style={{ backgroundColor: slot.color }}
                 >
-                  <span className="text-4xl md:text-5xl opacity-50">🏀</span>
+                  <img 
+                    src={slot.image} 
+                    alt={`${slot.name} mascot`} 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <p className="text-sm font-bold text-navy">{slot.name}</p>
               </motion.div>
