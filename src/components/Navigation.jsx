@@ -1,29 +1,51 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Flame, LogIn, LogOut } from 'lucide-react'
+import { Menu, X, Flame, LogIn, LogOut, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 const Navigation = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [showLogin, setShowLogin] = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
+  const [authMode, setAuthMode] = useState('login') // 'login' or 'signup'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loginError, setLoginError] = useState('')
+  const [authError, setAuthError] = useState('')
+  const [authSuccess, setAuthSuccess] = useState('')
   const location = useLocation()
-  const { isAdmin, login, logout } = useAuth()
+  const { isLoggedIn, isAdmin, login, signup, logout, session } = useAuth()
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoginError('')
-    const result = await login(email, password)
-    if (result.success) {
-      setShowLogin(false)
-      setEmail('')
-      setPassword('')
+    setAuthError('')
+    setAuthSuccess('')
+
+    if (authMode === 'login') {
+      const result = await login(email, password)
+      if (result.success) {
+        setShowAuth(false)
+        setEmail('')
+        setPassword('')
+      } else {
+        setAuthError(result.message)
+      }
     } else {
-      setLoginError(result.message)
+      const result = await signup(email, password)
+      if (result.success) {
+        setAuthSuccess(result.message)
+        setEmail('')
+        setPassword('')
+      } else {
+        setAuthError(result.message)
+      }
     }
+  }
+
+  const closeAuth = () => {
+    setShowAuth(false)
+    setAuthError('')
+    setAuthSuccess('')
+    setAuthMode('login')
   }
 
   return (
@@ -67,17 +89,26 @@ const Navigation = () => {
                 MY STREAK
               </button>
 
-              {isAdmin ? (
-                <button 
-                  onClick={logout}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-red-500 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
+              {isLoggedIn ? (
+                <div className="flex items-center gap-3">
+                  {isAdmin && (
+                    <span className="text-xs bg-red/10 text-red px-2 py-1 rounded-full font-bold">
+                      ADMIN
+                    </span>
+                  )}
+                  <div className="w-8 h-8 rounded-full bg-navy/10 flex items-center justify-center">
+                    <User className="w-4 h-4 text-navy" />
+                  </div>
+                  <button 
+                    onClick={logout}
+                    className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-red transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
               ) : (
                 <button 
-                  onClick={() => setShowLogin(true)}
+                  onClick={() => setShowAuth(true)}
                   className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-navy transition-colors"
                 >
                   <LogIn className="w-4 h-4" />
@@ -105,10 +136,14 @@ const Navigation = () => {
               <div className="px-4 py-4 flex flex-col gap-3">
                 <Link to="/" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>Home</Link>
                 <Link to="/nba" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>NBA</Link>
-                {isAdmin ? (
-                  <button onClick={() => { logout(); setMobileOpen(false); }} className="text-sm font-semibold text-red-500 py-2 text-left">Logout</button>
+                {isLoggedIn ? (
+                  <button onClick={() => { logout(); setMobileOpen(false); }} className="text-sm font-semibold text-red py-2 text-left flex items-center gap-2">
+                    <LogOut className="w-4 h-4" /> Logout
+                  </button>
                 ) : (
-                  <button onClick={() => { setShowLogin(true); setMobileOpen(false); }} className="text-sm font-semibold text-navy py-2 text-left">Login</button>
+                  <button onClick={() => { setShowAuth(true); setMobileOpen(false); }} className="text-sm font-semibold text-navy py-2 text-left flex items-center gap-2">
+                    <LogIn className="w-4 h-4" /> Login
+                  </button>
                 )}
               </div>
             </motion.div>
@@ -116,46 +151,97 @@ const Navigation = () => {
         </AnimatePresence>
       </nav>
 
-      {/* Login Modal */}
+      {/* Auth Modal */}
       <AnimatePresence>
-        {showLogin && (
+        {showAuth && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4"
-            onClick={() => setShowLogin(false)}
+            onClick={closeAuth}
           >
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl"
+              className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Admin Login</h2>
-              <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy focus:outline-none text-sm"
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy focus:outline-none text-sm"
-                  required
-                />
-                {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
-                <button type="submit" className="w-full bg-navy text-white py-3 rounded-lg font-bold hover:bg-navy-dark transition-colors">
-                  Sign In
-                </button>
-              </form>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-navy to-navy-dark px-8 pt-8 pb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+                    <path d="M8 6L24 16L8 26V6Z" fill="#00d4ff" opacity="0.8"/>
+                    <path d="M4 10L20 20L4 28V10Z" fill="white"/>
+                  </svg>
+                  <span className="text-white font-display font-extrabold text-sm">KYNETICS SPORTS</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white">
+                  {authMode === 'login' ? 'Welcome back' : 'Create account'}
+                </h2>
+                <p className="text-blue-200 text-sm mt-1">
+                  {authMode === 'login' ? 'Sign in to access your account' : 'Join the Kynetics community'}
+                </p>
+              </div>
+
+              {/* Form */}
+              <div className="p-8">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Email</label>
+                    <input
+                      type="email"
+                      placeholder="you@email.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent focus:outline-none text-sm"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent focus:outline-none text-sm"
+                      required
+                    />
+                  </div>
+
+                  {authError && (
+                    <p className="text-red text-sm bg-red-50 px-3 py-2 rounded-lg">{authError}</p>
+                  )}
+                  {authSuccess && (
+                    <p className="text-green-600 text-sm bg-green-50 px-3 py-2 rounded-lg">{authSuccess}</p>
+                  )}
+
+                  <button 
+                    type="submit" 
+                    className="w-full bg-navy text-white py-3 rounded-lg font-bold hover:bg-navy-dark transition-colors mt-2"
+                  >
+                    {authMode === 'login' ? 'Sign In' : 'Create Account'}
+                  </button>
+                </form>
+
+                <div className="mt-6 text-center">
+                  <p className="text-gray-400 text-sm">
+                    {authMode === 'login' ? "Don't have an account?" : "Already have an account?"}
+                    <button 
+                      onClick={() => {
+                        setAuthMode(authMode === 'login' ? 'signup' : 'login')
+                        setAuthError('')
+                        setAuthSuccess('')
+                      }}
+                      className="text-navy font-semibold ml-1 hover:underline"
+                    >
+                      {authMode === 'login' ? 'Sign up' : 'Sign in'}
+                    </button>
+                  </p>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}

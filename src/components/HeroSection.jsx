@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 
 const HeroSection = () => {
   return (
-    <section className="pt-[70px]">
+    <section className="pt-[70px] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side */}
@@ -15,8 +15,8 @@ const HeroSection = () => {
             transition={{ duration: 0.6 }}
           >
             {/* Pick of the day badge */}
-            <div className="inline-flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-2 rounded-full text-sm font-bold mb-8">
-              <TrendingUp className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-full text-sm font-bold mb-8">
+              <TrendingUp className="w-4 h-4 text-red" />
               <Flame className="w-4 h-4 text-orange-500" />
               PICK OF THE DAY
             </div>
@@ -66,7 +66,7 @@ const HeroSection = () => {
               <div className="text-center text-white/60">
                 <div className="text-8xl mb-4">🐾</div>
                 <p className="text-sm font-semibold">Hero Mascot</p>
-                <p className="text-xs opacity-60">Upload via Admin Panel</p>
+                <p className="text-xs opacity-60">Upload via Supabase Storage</p>
               </div>
             </div>
           </motion.div>

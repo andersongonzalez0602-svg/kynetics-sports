@@ -29,7 +29,7 @@ const FAQ = () => {
   const [open, setOpen] = useState(null)
 
   return (
-    <section className="bg-gray-50 py-20 md:py-28">
+    <section className="bg-white py-20 md:py-28">
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
           <p className="text-red font-bold text-sm tracking-widest uppercase mb-3">Support & Help</p>
@@ -47,14 +47,14 @@ const FAQ = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className="bg-white rounded-xl border border-gray-100 overflow-hidden"
+              className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden"
             >
               <button
                 onClick={() => setOpen(open === i ? null : i)}
                 className="w-full flex items-center justify-between p-5 text-left"
               >
                 <span className="font-bold text-gray-800 pr-4">{faq.q}</span>
-                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                   {open === i ? (
                     <Minus className="w-4 h-4 text-navy" />
                   ) : (
