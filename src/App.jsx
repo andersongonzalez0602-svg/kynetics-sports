@@ -16,6 +16,7 @@ import PrivacyPage from '@/components/legal/PrivacyPage'
 import CookiePage from '@/components/legal/CookiePage'
 import DisclaimerPage from '@/components/legal/DisclaimerPage'
 import ResponsibleGamingPage from '@/components/legal/ResponsibleGamingPage'
+import CookieBanner from '@/components/CookieBanner'
 
 function HomePage() {
   return (
@@ -48,6 +49,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <CookieBanner />
       </div>
     </AuthProvider>
   )
