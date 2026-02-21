@@ -10,6 +10,7 @@ import MascotsSection from '@/components/MascotsSection'
 import CallToAction from '@/components/CallToAction'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
+import NBAPage from '@/components/NBAPage'
 
 function HomePage() {
   return (
@@ -22,14 +23,6 @@ function HomePage() {
       <CallToAction />
       <FAQ />
     </>
-  )
-}
-
-function NBAPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-      <p className="text-gray-400 text-xl">NBA Section — Coming Soon</p>
-    </div>
   )
 }
 
