@@ -35,9 +35,7 @@ const HeroSection = () => {
 
             {/* Description */}
             <p className="text-gray-500 text-lg leading-relaxed mb-8 max-w-lg">
-              advanced AI analyzes 10,000+ data points including player performance, 
-              team statistics, and historical matchups to deliver the most accurate 
-              NBA predictions in the game.
+              Predictions, stats, and matchups for every NBA game — powered by data analysis and brought to life with unique team mascots.
             </p>
 
             {/* CTA Button */}
