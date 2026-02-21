@@ -24,10 +24,10 @@ const HeroSection = () => {
             {/* Main heading */}
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] mb-6">
               <span className="bg-gradient-to-r from-navy to-red bg-clip-text text-transparent">
-                CLEVELAND
+                LAKERS
               </span>
               <br />
-              <span className="text-navy">89%</span>
+              <span className="text-navy">61%</span>
             </h1>
 
             {/* Description */}
