@@ -24,14 +24,13 @@ const MascotsSection = () => {
           >
             <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Meet the Mascots</h2>
             <p className="text-blue-200 text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
-              Every team has a story. Our AI-powered mascots bring that story to life, 
-              capturing the essence and spirit of each franchise through dynamic, unique designs.
+              Every team has a character. We designed unique mascots that capture the spirit and energy of each franchise. Collect them, compare them, and follow your favorites.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               {[
-                { icon: Zap, label: 'AI-Powered Design' },
-                { icon: Layers, label: 'Dynamic Vector Style' },
-                { icon: Wifi, label: 'Unique Identity' },
+                { icon: Zap, label: 'Original Designs' },
+                { icon: Layers, label: '30 NBA Teams' },
+                { icon: Wifi, label: 'Updated Daily' },
               ].map((badge, i) => (
                 <div key={i} className="flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full text-white/80 text-sm font-medium">
                   <badge.icon className="w-4 h-4 text-cyan" />
@@ -53,10 +52,10 @@ const MascotsSection = () => {
             className="text-center mb-12"
           >
             <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 italic">
-              Every Game Has a Face
+              Today's Featured Teams
             </h3>
             <p className="text-gray-500 max-w-lg mx-auto">
-              Each matchup features a unique mascot representing the identity and spirit of the franchise.
+              These are today's highlighted matchups and their mascots.
             </p>
             <div className="w-16 h-1 bg-cyan mx-auto rounded-full mt-4" />
           </motion.div>

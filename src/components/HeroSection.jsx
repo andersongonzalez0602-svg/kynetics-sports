@@ -2,8 +2,11 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { TrendingUp, Flame, CheckCircle, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { PICK_OF_THE_DAY, MASCOT_IMAGES } from '@/config/pickOfTheDay'
 
 const HeroSection = () => {
+  const { team, percentage } = PICK_OF_THE_DAY
+  const mascotSrc = MASCOT_IMAGES[team] || '/mascot-houston.png'
   return (
     <section className="pt-[70px] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
@@ -24,10 +27,10 @@ const HeroSection = () => {
             {/* Main heading */}
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] mb-6">
               <span className="bg-gradient-to-r from-navy to-red bg-clip-text text-transparent">
-                CLEVELAND
+                {team}
               </span>
               <br />
-              <span className="text-navy">89%</span>
+              <span className="text-navy">{percentage}%</span>
             </h1>
 
             {/* Description */}
@@ -63,8 +66,8 @@ const HeroSection = () => {
             className="flex justify-center"
           >
             <img 
-              src="/hero-mascot.png" 
-              alt="Lakers mascot" 
+              src={mascotSrc} 
+              alt={`${team} mascot`} 
               className="w-full max-w-md aspect-square rounded-3xl shadow-2xl object-cover"
             />
           </motion.div>
