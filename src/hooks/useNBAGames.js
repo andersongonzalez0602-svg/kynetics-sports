@@ -62,37 +62,6 @@ export const useNBAGames = () => {
     }
   }
 
-  const updateMascotImage = async (gameId, team, file) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('You must be logged in.')
-
-      const ext = file.name.split('.').pop()
-      const path = `${gameId}/${team}_${Date.now()}.${ext}`
-
-      const { error: upErr } = await supabase.storage
-        .from('mascot-images')
-        .upload(path, file, { upsert: true })
-      if (upErr) throw upErr
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('mascot-images')
-        .getPublicUrl(path)
-
-      const field = team === 'home' ? 'home_team_mascot_image' : 'away_team_mascot_image'
-      const { error: dbErr } = await supabase
-        .from('nba_games')
-        .update({ [field]: publicUrl })
-        .eq('id', gameId)
-      if (dbErr) throw dbErr
-
-      setGames(prev => prev.map(g => g.id === gameId ? { ...g, [field]: publicUrl } : g))
-      return { success: true, url: publicUrl }
-    } catch (err) {
-      return { success: false, error: err.message }
-    }
-  }
-
   const voteForTeam = async (gameId, team) => {
     try {
       const field = team === 'home' ? 'community_votes_home' : 'community_votes_away'
@@ -117,6 +86,6 @@ export const useNBAGames = () => {
     games, loading, error,
     fetchGamesByDate, insertGames,
     deleteGamesByDate, deleteGame,
-    updateMascotImage, voteForTeam
+    voteForTeam
   }
 }

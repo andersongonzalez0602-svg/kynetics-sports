@@ -12,15 +12,9 @@ const NBAPage = () => {
   const [activeTab, setActiveTab] = useState('All')
   const [selectedGame, setSelectedGame] = useState(null)
 
-  const {
-    games, loading, error,
-    fetchGamesByDate, deleteGame,
-    updateMascotImage, voteForTeam
-  } = useNBAGames()
+  const { games, loading, error, fetchGamesByDate, deleteGame, voteForTeam } = useNBAGames()
 
-  useEffect(() => {
-    fetchGamesByDate(currentDate)
-  }, [currentDate, fetchGamesByDate])
+  useEffect(() => { fetchGamesByDate(currentDate) }, [currentDate, fetchGamesByDate])
 
   const filteredGames = () => {
     if (activeTab === 'All') return games
@@ -39,39 +33,18 @@ const NBAPage = () => {
     setCurrentDate(d.toISOString().split('T')[0])
   }
 
-  const formattedDate = new Date(currentDate + 'T12:00:00').toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric'
-  })
-
+  const formattedDate = new Date(currentDate + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })
   const isToday = currentDate === today
-
-  const handleDelete = async (gameId) => {
-    const result = await deleteGame(gameId)
-    if (!result.success) alert('Failed to delete: ' + result.error)
-  }
-
-  const handleMascotUpload = async (gameId, team, file) => {
-    const result = await updateMascotImage(gameId, team, file)
-    if (!result.success) alert('Failed to upload: ' + result.error)
-  }
-
-  const handleVote = async (gameId, team) => {
-    return await voteForTeam(gameId, team)
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-[70px]">
-
       {/* Header */}
       <div className="bg-gradient-to-br from-navy via-navy to-navy-dark relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-cyan rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
         </div>
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            {/* Date nav */}
+          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}>
             <div className="flex items-center gap-3 mb-3">
               <button onClick={() => shiftDate(-1)} className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
                 <ChevronLeft className="w-5 h-5 text-white" />
@@ -84,23 +57,16 @@ const NBAPage = () => {
                 <ChevronRight className="w-5 h-5 text-white" />
               </button>
             </div>
-
-            {/* SEO text + stats */}
             <p className="text-blue-200/70 text-sm md:text-base max-w-2xl mb-4 leading-relaxed">
-              AI-powered predictions and original mascot designs for every NBA matchup. 
-              Explore stats, vote on winners, and follow your favorite teams.
+              AI-powered predictions and original mascot designs for every NBA matchup.
             </p>
-
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 px-4 py-2.5 rounded-xl">
+              <div className="flex items-center gap-2 bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl">
                 <span className="text-2xl font-black text-cyan">{games.length}</span>
                 <span className="text-sm font-semibold text-white/70">Games</span>
               </div>
               {!isToday && (
-                <button
-                  onClick={() => setCurrentDate(today)}
-                  className="text-sm font-semibold text-cyan/80 hover:text-cyan bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl transition-colors"
-                >
+                <button onClick={() => setCurrentDate(today)} className="text-sm font-semibold text-cyan/80 hover:text-cyan bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl transition-colors">
                   ← Back to Today
                 </button>
               )}
@@ -109,35 +75,19 @@ const NBAPage = () => {
         </div>
       </div>
 
-      {/* Filter Tabs */}
+      {/* Tabs */}
       <div className="sticky top-[70px] z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             <Filter className="w-4 h-4 text-gray-300 mr-1 shrink-0" />
             {tabs.map(tab => {
-              const count = tab === 'Live' ? games.filter(g => g.status === 'live').length
-                : tab === 'Featured' ? games.filter(g => g.is_featured).length
-                : tab === 'Upcoming' ? games.filter(g => g.status === 'upcoming').length
-                : games.length
+              const count = tab==='Live' ? games.filter(g=>g.status==='live').length : tab==='Featured' ? games.filter(g=>g.is_featured).length : tab==='Upcoming' ? games.filter(g=>g.status==='upcoming').length : games.length
               return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === tab
-                      ? 'bg-navy text-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
+                <button key={tab} onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab===tab ? 'bg-navy text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
                   {tab}
-                  {tab === 'Live' && count > 0 && (
-                    <span className="ml-1.5 w-1.5 h-1.5 bg-red rounded-full inline-block animate-pulse" />
-                  )}
-                  {tab !== 'All' && count > 0 && (
-                    <span className={`ml-1.5 text-xs ${activeTab === tab ? 'text-white/60' : 'text-gray-300'}`}>
-                      {count}
-                    </span>
-                  )}
+                  {tab==='Live' && count>0 && <span className="ml-1.5 w-1.5 h-1.5 bg-red rounded-full inline-block animate-pulse" />}
+                  {tab!=='All' && count>0 && <span className={`ml-1.5 text-xs ${activeTab===tab ? 'text-white/60' : 'text-gray-300'}`}>{count}</span>}
                 </button>
               )
             })}
@@ -145,67 +95,34 @@ const NBAPage = () => {
         </div>
       </div>
 
-      {/* Game Grid */}
+      {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-navy animate-spin mb-3" />
-            <p className="text-gray-400 text-sm">Loading games...</p>
-          </div>
+          <div className="flex flex-col items-center py-20"><Loader2 className="w-8 h-8 text-navy animate-spin mb-3" /><p className="text-gray-400 text-sm">Loading games...</p></div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AlertCircle className="w-10 h-10 text-red mb-3" />
-            <p className="text-red text-sm font-bold">{error}</p>
-          </div>
+          <div className="flex flex-col items-center py-20"><AlertCircle className="w-10 h-10 text-red mb-3" /><p className="text-red text-sm font-bold">{error}</p></div>
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <AnimatePresence mode="popLayout">
               {filtered.map((game, i) => (
-                <motion.div
-                  key={game.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                >
-                  <GameCard
-                    game={game}
-                    onOpenDetail={setSelectedGame}
-                    onDelete={handleDelete}
-                    onMascotUpload={handleMascotUpload}
-                  />
+                <motion.div key={game.id} layout initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, scale:0.95 }} transition={{ duration:0.3, delay:i*0.05 }}>
+                  <GameCard game={game} onOpenDetail={setSelectedGame} onDelete={async id => { const r = await deleteGame(id); if(!r.success) alert(r.error) }} />
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-300">
+          <div className="flex flex-col items-center py-20 text-gray-300">
             <Calendar className="w-12 h-12 mb-4 text-gray-200" />
             <p className="text-lg font-bold text-gray-400">No games for this date</p>
             <p className="text-sm text-gray-300 mt-1">Try a different day or check back later.</p>
-            {!isToday && (
-              <button onClick={() => setCurrentDate(today)} className="mt-4 text-sm font-semibold text-navy hover:underline">
-                Go to Today
-              </button>
-            )}
+            {!isToday && <button onClick={() => setCurrentDate(today)} className="mt-4 text-sm font-semibold text-navy hover:underline">Go to Today</button>}
           </div>
         )}
       </div>
 
-      {/* Detail Modal */}
-      <GameDetailModal
-        game={selectedGame}
-        isOpen={!!selectedGame}
-        onClose={() => setSelectedGame(null)}
-        onVote={handleVote}
-      />
-
-      {/* Admin JSON Panel */}
-      <AdminJSONPanel
-        onGamesUpdated={() => fetchGamesByDate(currentDate)}
-        currentDate={currentDate}
-      />
+      <GameDetailModal game={selectedGame} isOpen={!!selectedGame} onClose={() => setSelectedGame(null)} onVote={async (id,t) => await voteForTeam(id,t)} />
+      <AdminJSONPanel onGamesUpdated={() => fetchGamesByDate(currentDate)} currentDate={currentDate} />
     </div>
   )
 }

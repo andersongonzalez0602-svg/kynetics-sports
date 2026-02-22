@@ -1,14 +1,15 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Zap, Layers, Wifi } from 'lucide-react'
+import { getMascotUrl } from '@/lib/mascots'
 
 const mascotSlots = [
-  { name: 'HOUSTON', color: '#CE1141', image: '/mascot-houston.png' },
-  { name: 'LAKERS', color: '#552583', image: '/mascot-lakers.png' },
-  { name: 'BULLS', color: '#CE1141', image: '/mascot-bulls.png' },
-  { name: 'CELTICS', color: '#007A33', image: '/mascot-celtics.png' },
-  { name: 'NETS', color: '#000000', image: '/mascot-nets.png' },
-  { name: 'HEAT', color: '#98002E', image: '/mascot-heat.png' },
+  { abbr: 'HOU', name: 'HOUSTON', color: '#CE1141' },
+  { abbr: 'LAL', name: 'LAKERS', color: '#552583' },
+  { abbr: 'CHI', name: 'BULLS', color: '#CE1141' },
+  { abbr: 'BOS', name: 'CELTICS', color: '#007A33' },
+  { abbr: 'BKN', name: 'NETS', color: '#000000' },
+  { abbr: 'MIA', name: 'HEAT', color: '#98002E' },
 ]
 
 const MascotsSection = () => {
@@ -24,13 +25,14 @@ const MascotsSection = () => {
           >
             <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Meet the Mascots</h2>
             <p className="text-blue-200 text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
-              Every team has a character. We designed unique mascots that capture the spirit and energy of each franchise. Collect them, compare them, and follow your favorites.
+              Every team has a story. Our AI-powered mascots bring that story to life, 
+              capturing the essence and spirit of each franchise through dynamic, unique designs.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               {[
-                { icon: Zap, label: 'Original Designs' },
-                { icon: Layers, label: '30 NBA Teams' },
-                { icon: Wifi, label: 'Updated Daily' },
+                { icon: Zap, label: 'AI-Powered Design' },
+                { icon: Layers, label: 'Dynamic Vector Style' },
+                { icon: Wifi, label: 'Unique Identity' },
               ].map((badge, i) => (
                 <div key={i} className="flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full text-white/80 text-sm font-medium">
                   <badge.icon className="w-4 h-4 text-cyan" />
@@ -52,10 +54,10 @@ const MascotsSection = () => {
             className="text-center mb-12"
           >
             <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 italic">
-              Today's Featured Teams
+              Every Game Has a Face
             </h3>
             <p className="text-gray-500 max-w-lg mx-auto">
-              These are today's highlighted matchups and their mascots.
+              Each matchup features a unique mascot representing the identity and spirit of the franchise.
             </p>
             <div className="w-16 h-1 bg-cyan mx-auto rounded-full mt-4" />
           </motion.div>
@@ -74,11 +76,15 @@ const MascotsSection = () => {
                   className="aspect-square rounded-2xl flex items-center justify-center mb-3 shadow-md overflow-hidden"
                   style={{ backgroundColor: slot.color }}
                 >
-                  <img 
-                    src={slot.image} 
-                    alt={`${slot.name} mascot`} 
+                  <img
+                    src={getMascotUrl(slot.abbr)}
+                    alt={slot.name}
                     className="w-full h-full object-cover"
+                    onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }}
                   />
+                  <div className="w-full h-full items-center justify-center absolute inset-0 hidden">
+                    <span className="text-4xl md:text-5xl opacity-50">🏀</span>
+                  </div>
                 </div>
                 <p className="text-sm font-bold text-navy">{slot.name}</p>
               </motion.div>
