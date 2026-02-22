@@ -64,18 +64,16 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
         )}
       </div>
 
-      {/* MASCOTS - no gap, touching, with pop effect */}
-      <div className="flex -mt-1">
-        {[{ src: hm, color: hc, name: game.home_team_mascot_name || hn },
-          { src: am, color: ac, name: game.away_team_mascot_name || an }].map((m, i) => (
-          <div key={i} className="flex-1 aspect-[4/3] relative overflow-hidden" style={{ backgroundColor: m.color }}>
-            <img src={m.src} alt={m.name} className="w-full h-full object-cover drop-shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+      {/* MASCOTS - no gap, image IS the background */}
+      <div className="flex">
+        {[{ src: hm, name: game.home_team_mascot_name || hn },
+          { src: am, name: game.away_team_mascot_name || an }].map((m, i) => (
+          <div key={i} className="flex-1 aspect-[4/3] relative overflow-hidden bg-gray-200">
+            <img src={m.src} alt={m.name} className="w-full h-full object-cover"
               onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
-            <div className="w-full h-full items-center justify-center absolute inset-0 hidden">
-              <span className="text-white/15 font-black text-xl italic">{m.name}</span>
+            <div className="w-full h-full items-center justify-center absolute inset-0 hidden bg-gray-300">
+              <span className="text-gray-400 font-black text-xl italic">{m.name}</span>
             </div>
-            {/* Inner shadow for depth */}
-            <div className="absolute inset-0 shadow-[inset_0_-20px_30px_-10px_rgba(0,0,0,0.2)] pointer-events-none" />
           </div>
         ))}
       </div>
@@ -83,17 +81,16 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
       {/* PREDICTION BAR */}
       <div className="px-3 pt-4 pb-1">
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">AI Prediction</p>
-        <div className="h-10 sm:h-11 rounded-xl overflow-hidden flex shadow-sm">
+        <div className="h-10 sm:h-11 rounded-xl overflow-hidden flex">
           <motion.div initial={{ width: 0 }} animate={{ width: `${hp}%` }} transition={{ duration: 1, ease: 'easeOut' }}
-            className="flex items-center pl-3 rounded-l-xl relative"
-            style={{ background: `linear-gradient(135deg, ${hc}, ${hc}dd)` }}>
-            <span className="text-white text-sm sm:text-base font-black relative z-10 drop-shadow-sm">{hp}%</span>
-            <div className="absolute inset-0 bar-shine" />
+            className="flex items-center pl-3 rounded-l-xl bar-glass"
+            style={{ backgroundColor: hc }}>
+            <span className="text-white text-sm sm:text-base font-black relative z-10">{hp}%</span>
           </motion.div>
           <motion.div initial={{ width: 0 }} animate={{ width: `${ap}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.15 }}
-            className="flex items-center justify-end pr-3 rounded-r-xl"
-            style={{ background: `linear-gradient(135deg, ${ac}dd, ${ac})` }}>
-            <span className="text-white text-sm sm:text-base font-black drop-shadow-sm">{ap}%</span>
+            className="flex items-center justify-end pr-3 rounded-r-xl bar-glass"
+            style={{ backgroundColor: ac }}>
+            <span className="text-white text-sm sm:text-base font-black relative z-10">{ap}%</span>
           </motion.div>
         </div>
         <div className="flex justify-between mt-1.5">
