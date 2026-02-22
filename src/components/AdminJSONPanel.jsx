@@ -50,6 +50,8 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
         away_streak: g.away?.streak || '',
         head_to_head: g.prediction?.head_to_head || '',
         reason_text: g.prediction?.reason || '',
+        community_votes_home: 0,
+        community_votes_away: 0,
       }))
 
       setPreview(rows)
@@ -137,7 +139,6 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
               </div>
 
               <div className="p-6 flex flex-col gap-6">
-                {/* Status messages */}
                 {error && (
                   <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">
                     <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
@@ -157,7 +158,7 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
                   <textarea
                     value={jsonInput}
                     onChange={e => { setJsonInput(e.target.value); setError(null); setSuccess(null); }}
-                    placeholder='{"game_date": "2026-02-21", "games": [...]}'
+                    placeholder='{"game_date": "2026-02-22", "games": [...]}'
                     className="w-full h-48 p-4 font-mono text-xs border border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-navy focus:outline-none resize-none"
                   />
                   <button
@@ -201,7 +202,6 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
                   </div>
                 )}
 
-                {/* Divider */}
                 <div className="border-t border-gray-200" />
 
                 {/* Delete section */}
@@ -230,17 +230,17 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
                   <h3 className="text-sm font-bold text-gray-700 mb-2">JSON Template</h3>
                   <pre className="bg-gray-900 text-green-400 text-xs p-4 rounded-xl overflow-x-auto">
 {`{
-  "game_date": "2026-02-21",
+  "game_date": "2026-02-22",
   "games": [
     {
-      "game_time": "7:00 PM",
+      "game_time": "7:00 PM EST",
       "status": "upcoming",
-      "is_value_pick": true,
-      "is_featured": false,
+      "is_value_pick": false,
+      "is_featured": true,
       "home": {
         "name": "Houston Rockets",
         "abbr": "HOU",
-        "record": "35-15",
+        "record": "35-18",
         "color": "#CE1141",
         "mascot_name": "Bear",
         "streak": "W4"
@@ -248,17 +248,75 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
       "away": {
         "name": "Brooklyn Nets",
         "abbr": "BKN",
-        "record": "28-22",
+        "record": "22-30",
         "color": "#000000",
         "mascot_name": "Knight",
         "streak": "L2"
       },
       "prediction": {
-        "home_win_pct": 65,
-        "away_win_pct": 35,
-        "data_points": 47,
+        "home_win_pct": 72,
+        "away_win_pct": 28,
+        "data_points": 48,
         "head_to_head": "Rockets 2-0",
-        "reason": "HOU has won 8 of last 10."
+        "reason": "HOU on a 4-game win streak at home, BKN struggling on the road going 3-9 in last 12 away games."
+      }
+    },
+    {
+      "game_time": "8:30 PM EST",
+      "status": "upcoming",
+      "is_value_pick": true,
+      "is_featured": false,
+      "home": {
+        "name": "Denver Nuggets",
+        "abbr": "DEN",
+        "record": "32-20",
+        "color": "#0E2240",
+        "mascot_name": "Lion",
+        "streak": "W2"
+      },
+      "away": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "record": "15-37",
+        "color": "#C8102E",
+        "mascot_name": "Horse",
+        "streak": "L5"
+      },
+      "prediction": {
+        "home_win_pct": 85,
+        "away_win_pct": 15,
+        "data_points": 52,
+        "head_to_head": "Nuggets 1-0",
+        "reason": "DEN is 22-5 at home this season. DET has the worst road record in the league at 5-21."
+      }
+    },
+    {
+      "game_time": "10:00 PM EST",
+      "status": "upcoming",
+      "is_value_pick": false,
+      "is_featured": false,
+      "home": {
+        "name": "LA Clippers",
+        "abbr": "LAC",
+        "record": "34-18",
+        "color": "#C8102E",
+        "mascot_name": "Condor",
+        "streak": "W3"
+      },
+      "away": {
+        "name": "Washington Wizards",
+        "abbr": "WAS",
+        "record": "18-34",
+        "color": "#002B5C",
+        "mascot_name": "Wizard",
+        "streak": "L3"
+      },
+      "prediction": {
+        "home_win_pct": 78,
+        "away_win_pct": 22,
+        "data_points": 45,
+        "head_to_head": "Clippers 2-0",
+        "reason": "LAC dominant at home with Kawhi back. WAS ranks 28th in defensive rating on the road."
       }
     }
   ]

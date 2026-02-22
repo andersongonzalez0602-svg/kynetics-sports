@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Clock, TrendingUp, Star, Pencil, Trash2, ChevronRight } from 'lucide-react'
+import { Clock, TrendingUp, Pencil, Trash2, ChevronRight } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
@@ -11,14 +11,6 @@ const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
   const awayColor = game.away_team_color || '#333333'
   const homePct = game.home_win_pct || 50
   const awayPct = game.away_win_pct || 50
-  const winner = homePct >= awayPct ? 'home' : 'away'
-
-  const statusBadge = () => {
-    if (game.status === 'live') return { text: 'LIVE', bg: 'bg-red', pulse: true }
-    if (game.status === 'final') return { text: 'FINAL', bg: 'bg-gray-600', pulse: false }
-    return null
-  }
-  const badge = statusBadge()
 
   const handleMascotFile = (team, e) => {
     const file = e.target.files?.[0]
@@ -31,41 +23,28 @@ const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
     }
   }
 
-  const MascotImage = ({ src, color, abbr, team }) => (
-    <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden shrink-0" style={{ backgroundColor: color }}>
+  const MascotBox = ({ src, color, mascotName, team }) => (
+    <div className="relative flex-1 aspect-[4/3] rounded-xl overflow-hidden" style={{ backgroundColor: color }}>
       {src ? (
-        <img src={src} alt="" className="w-full h-full object-cover" />
+        <img src={src} alt={mascotName || ''} className="w-full h-full object-cover" />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-white font-black text-xs tracking-tight">
-          {abbr || '???'}
+        <div className="w-full h-full flex items-center justify-center">
+          <span className="text-white/30 font-black text-lg md:text-xl rotate-[-10deg]">
+            {mascotName || '?'}
+          </span>
         </div>
       )}
       {isAdmin && (
         <>
           <input type="file" ref={team === 'home' ? homeFileRef : awayFileRef} className="hidden" accept="image/*" onChange={e => handleMascotFile(team, e)} />
           <button
-            onClick={() => (team === 'home' ? homeFileRef : awayFileRef).current?.click()}
-            className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+            onClick={(e) => { e.stopPropagation(); (team === 'home' ? homeFileRef : awayFileRef).current?.click() }}
+            className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
           >
-            <Pencil className="w-4 h-4 text-white" />
+            <Pencil className="w-5 h-5 text-white" />
           </button>
         </>
       )}
-    </div>
-  )
-
-  const TeamRow = ({ name, record, abbr, pct, color, mascotSrc, team, isWinner }) => (
-    <div className="flex items-center gap-3">
-      <MascotImage src={mascotSrc} color={color} abbr={abbr} team={team} />
-      <div className="flex-1 min-w-0">
-        <p className="font-bold text-gray-900 text-sm truncate">{name || 'TBD'}</p>
-        <p className="text-gray-400 text-xs">{record}</p>
-      </div>
-      <div className="text-right">
-        <span className={`text-2xl md:text-3xl font-black ${isWinner ? '' : 'opacity-50'}`} style={{ color }}>
-          {pct}%
-        </span>
-      </div>
     </div>
   )
 
@@ -73,96 +52,122 @@ const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300 relative group"
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 relative group"
     >
       {/* Admin trash */}
       {isAdmin && (
         <button
           onClick={handleDelete}
-          className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/90 hover:bg-red-50 rounded-full flex items-center justify-center border border-gray-200 hover:border-red-200 transition-colors opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 z-20 w-8 h-8 bg-white/90 hover:bg-red-50 rounded-full flex items-center justify-center border border-gray-200 hover:border-red-200 transition-colors opacity-0 group-hover:opacity-100"
         >
           <Trash2 className="w-3.5 h-3.5 text-gray-400 hover:text-red" />
         </button>
       )}
 
-      {/* Color accent line */}
-      <div className="h-1.5 flex">
-        <div className="flex-1 transition-all" style={{ backgroundColor: homeColor }} />
-        <div className="w-px bg-white" />
-        <div className="flex-1 transition-all" style={{ backgroundColor: awayColor }} />
-      </div>
-
-      {/* Badges */}
-      <div className="px-5 pt-4 flex items-center gap-2 flex-wrap">
-        <div className="flex items-center gap-1.5 bg-gray-50 text-gray-500 px-3 py-1.5 rounded-lg text-xs font-semibold">
-          <Clock className="w-3.5 h-3.5" />
-          {game.game_time || 'TBD'}
+      {/* Team header with split colors */}
+      <div className="relative flex h-24 md:h-28">
+        {/* Home side */}
+        <div className="flex-1 relative overflow-hidden" style={{ backgroundColor: homeColor }}>
+          <div className="absolute inset-0 flex flex-col justify-center px-3 md:px-4">
+            <p className="text-white/70 text-[10px] font-semibold">{game.home_team_record || ''}</p>
+            <p className="text-white font-black text-base md:text-xl leading-tight truncate">
+              {game.home_team_abbr || 'HOME'}
+            </p>
+          </div>
         </div>
+
+        {/* VS badge */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg">
+            <span className="text-[10px] font-black text-gray-400">VS</span>
+          </div>
+        </div>
+
+        {/* Away side */}
+        <div className="flex-1 relative overflow-hidden" style={{ backgroundColor: awayColor }}>
+          <div className="absolute inset-0 flex flex-col justify-center items-end px-3 md:px-4">
+            <p className="text-white/70 text-[10px] font-semibold">{game.away_team_record || ''}</p>
+            <p className="text-white font-black text-base md:text-xl leading-tight truncate">
+              {game.away_team_abbr || 'AWAY'}
+            </p>
+          </div>
+        </div>
+
+        {/* Badges overlaid */}
+        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 z-10">
+          <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-bold">
+            <Clock className="w-3 h-3" />
+            {game.game_time || 'TBD'}
+          </div>
+          {game.status === 'live' && (
+            <div className="bg-red text-white px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+              LIVE
+            </div>
+          )}
+          {game.status === 'final' && (
+            <div className="bg-gray-700 text-white px-2.5 py-1 rounded-full text-[10px] font-bold">FINAL</div>
+          )}
+        </div>
+
         {game.is_value_pick && (
-          <div className="flex items-center gap-1 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg text-xs font-bold">
-            <TrendingUp className="w-3.5 h-3.5" /> VALUE PICK
-          </div>
-        )}
-        {game.is_featured && (
-          <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg text-xs font-bold">
-            <Star className="w-3.5 h-3.5" /> FEATURED
-          </div>
-        )}
-        {badge && (
-          <div className={`${badge.bg} text-white px-3 py-1.5 rounded-lg text-xs font-bold ${badge.pulse ? 'animate-pulse' : ''}`}>
-            {badge.text}
+          <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1 bg-emerald-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm">
+            <TrendingUp className="w-3 h-3" /> VALUE
           </div>
         )}
       </div>
 
-      {/* Teams */}
-      <div className="px-5 py-5 space-y-4">
-        <TeamRow
-          name={game.home_team_name} record={game.home_team_record}
-          abbr={game.home_team_abbr} pct={homePct} color={homeColor}
-          mascotSrc={game.home_team_mascot_image} team="home"
-          isWinner={winner === 'home'}
-        />
-
-        <div className="flex items-center gap-3 px-2">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-[10px] font-black text-gray-300 tracking-widest">VS</span>
-          <div className="flex-1 h-px bg-gray-100" />
+      {/* Mascots row */}
+      <div className="px-4 -mt-3 relative z-10">
+        <div className="flex gap-3">
+          <MascotBox
+            src={game.home_team_mascot_image}
+            color={homeColor}
+            mascotName={game.home_team_mascot_name}
+            team="home"
+          />
+          <MascotBox
+            src={game.away_team_mascot_image}
+            color={awayColor}
+            mascotName={game.away_team_mascot_name}
+            team="away"
+          />
         </div>
-
-        <TeamRow
-          name={game.away_team_name} record={game.away_team_record}
-          abbr={game.away_team_abbr} pct={awayPct} color={awayColor}
-          mascotSrc={game.away_team_mascot_image} team="away"
-          isWinner={winner === 'away'}
-        />
       </div>
 
       {/* Prediction bar */}
-      <div className="px-5 pb-2">
-        <div className="h-2.5 rounded-full overflow-hidden flex bg-gray-100 relative">
+      <div className="px-4 pt-4 pb-1">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">AI Prediction</p>
+        <div className="h-8 rounded-xl overflow-hidden flex relative">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${homePct}%` }}
             transition={{ duration: 1, ease: 'easeOut' }}
-            className="rounded-l-full relative"
+            className="flex items-center justify-start pl-3 rounded-l-xl relative"
             style={{ backgroundColor: homeColor }}
           >
+            <span className="text-white text-xs font-black relative z-10">{homePct}%</span>
             <div className="absolute inset-0 bar-shine" />
           </motion.div>
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${awayPct}%` }}
             transition={{ duration: 1, ease: 'easeOut', delay: 0.15 }}
-            className="rounded-r-full"
+            className="flex items-center justify-end pr-3 rounded-r-xl"
             style={{ backgroundColor: awayColor }}
-          />
+          >
+            <span className="text-white text-xs font-black">{awayPct}%</span>
+          </motion.div>
+        </div>
+        <div className="flex justify-between mt-1.5">
+          <span className="text-[10px] text-gray-400 font-semibold">{game.home_team_abbr}</span>
+          <span className="text-[10px] text-gray-400 font-semibold">{game.away_team_abbr}</span>
         </div>
       </div>
 
       {/* Reason */}
       {game.reason_text && (
-        <div className="px-5 pt-2 pb-1">
+        <div className="px-4 pt-2 pb-1">
           <p className="text-gray-400 text-xs leading-relaxed">
             💡 <span className="text-gray-500">{game.reason_text}</span>
           </p>
@@ -170,10 +175,10 @@ const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
       )}
 
       {/* Footer */}
-      <div className="p-5 pt-4">
+      <div className="p-4 pt-3">
         <button
           onClick={() => onOpenDetail?.(game)}
-          className="w-full py-3 bg-navy/5 hover:bg-navy text-navy hover:text-white rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-1.5 group/btn"
+          className="w-full py-3 bg-gray-50 hover:bg-navy text-gray-500 hover:text-white rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-1.5 border border-gray-100 hover:border-navy group/btn"
         >
           See Details
           <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />

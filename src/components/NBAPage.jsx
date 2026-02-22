@@ -64,16 +64,15 @@ const NBAPage = () => {
 
       {/* Header */}
       <div className="bg-gradient-to-br from-navy via-navy to-navy-dark relative overflow-hidden">
-        {/* Subtle pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-cyan rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            {/* Date navigation */}
-            <div className="flex items-center gap-3 mb-4">
+            {/* Date nav */}
+            <div className="flex items-center gap-3 mb-3">
               <button onClick={() => shiftDate(-1)} className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
                 <ChevronLeft className="w-5 h-5 text-white" />
               </button>
@@ -86,8 +85,13 @@ const NBAPage = () => {
               </button>
             </div>
 
-            {/* Stats row */}
-            <div className="flex flex-wrap items-center gap-3 mt-4">
+            {/* SEO text + stats */}
+            <p className="text-blue-200/70 text-sm md:text-base max-w-2xl mb-4 leading-relaxed">
+              AI-powered predictions and original mascot designs for every NBA matchup. 
+              Explore stats, vote on winners, and follow your favorite teams.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 px-4 py-2.5 rounded-xl">
                 <span className="text-2xl font-black text-cyan">{games.length}</span>
                 <span className="text-sm font-semibold text-white/70">Games</span>
@@ -142,7 +146,7 @@ const NBAPage = () => {
       </div>
 
       {/* Game Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-navy animate-spin mb-3" />
