@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Clock, TrendingUp, Star, Pencil, Trash2 } from 'lucide-react'
+import { Clock, TrendingUp, Star, Pencil, Trash2, ChevronRight } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
@@ -11,6 +11,7 @@ const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
   const awayColor = game.away_team_color || '#333333'
   const homePct = game.home_win_pct || 50
   const awayPct = game.away_win_pct || 50
+  const winner = homePct >= awayPct ? 'home' : 'away'
 
   const statusBadge = () => {
     if (game.status === 'live') return { text: 'LIVE', bg: 'bg-red', pulse: true }
@@ -30,12 +31,14 @@ const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
     }
   }
 
-  const MascotImage = ({ src, color, team }) => (
-    <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 shadow-sm" style={{ backgroundColor: color }}>
+  const MascotImage = ({ src, color, abbr, team }) => (
+    <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden shrink-0" style={{ backgroundColor: color }}>
       {src ? (
         <img src={src} alt="" className="w-full h-full object-cover" />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">🏀</div>
+        <div className="w-full h-full flex items-center justify-center text-white font-black text-xs tracking-tight">
+          {abbr || '???'}
+        </div>
       )}
       {isAdmin && (
         <>
@@ -51,104 +54,129 @@ const GameCard = ({ game, onOpenDetail, onDelete, onMascotUpload }) => {
     </div>
   )
 
+  const TeamRow = ({ name, record, abbr, pct, color, mascotSrc, team, isWinner }) => (
+    <div className="flex items-center gap-3">
+      <MascotImage src={mascotSrc} color={color} abbr={abbr} team={team} />
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-gray-900 text-sm truncate">{name || 'TBD'}</p>
+        <p className="text-gray-400 text-xs">{record}</p>
+      </div>
+      <div className="text-right">
+        <span className={`text-2xl md:text-3xl font-black ${isWinner ? '' : 'opacity-50'}`} style={{ color }}>
+          {pct}%
+        </span>
+      </div>
+    </div>
+  )
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow relative"
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300 relative group"
     >
       {/* Admin trash */}
       {isAdmin && (
         <button
           onClick={handleDelete}
-          className="absolute top-3 right-3 z-10 w-8 h-8 bg-red-50 hover:bg-red-100 rounded-full flex items-center justify-center border border-red-200 transition-colors"
+          className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/90 hover:bg-red-50 rounded-full flex items-center justify-center border border-gray-200 hover:border-red-200 transition-colors opacity-0 group-hover:opacity-100"
         >
-          <Trash2 className="w-3.5 h-3.5 text-red" />
+          <Trash2 className="w-3.5 h-3.5 text-gray-400 hover:text-red" />
         </button>
       )}
 
-      {/* Split color header */}
-      <div className="h-2 flex">
-        <div className="flex-1" style={{ backgroundColor: homeColor }} />
-        <div className="flex-1" style={{ backgroundColor: awayColor }} />
+      {/* Color accent line */}
+      <div className="h-1.5 flex">
+        <div className="flex-1 transition-all" style={{ backgroundColor: homeColor }} />
+        <div className="w-px bg-white" />
+        <div className="flex-1 transition-all" style={{ backgroundColor: awayColor }} />
       </div>
 
       {/* Badges */}
       <div className="px-5 pt-4 flex items-center gap-2 flex-wrap">
-        <div className="flex items-center gap-1.5 bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full text-xs font-semibold">
-          <Clock className="w-3 h-3" />
+        <div className="flex items-center gap-1.5 bg-gray-50 text-gray-500 px-3 py-1.5 rounded-lg text-xs font-semibold">
+          <Clock className="w-3.5 h-3.5" />
           {game.game_time || 'TBD'}
         </div>
         {game.is_value_pick && (
-          <div className="flex items-center gap-1 bg-green-50 text-green-600 px-2.5 py-1 rounded-full text-xs font-bold border border-green-200">
-            <TrendingUp className="w-3 h-3" /> VALUE
+          <div className="flex items-center gap-1 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg text-xs font-bold">
+            <TrendingUp className="w-3.5 h-3.5" /> VALUE PICK
           </div>
         )}
         {game.is_featured && (
-          <div className="flex items-center gap-1 bg-yellow-50 text-yellow-600 px-2.5 py-1 rounded-full text-xs font-bold border border-yellow-200">
-            <Star className="w-3 h-3" /> FEATURED
+          <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg text-xs font-bold">
+            <Star className="w-3.5 h-3.5" /> FEATURED
           </div>
         )}
         {badge && (
-          <div className={`${badge.bg} text-white px-2.5 py-1 rounded-full text-xs font-bold ${badge.pulse ? 'animate-pulse' : ''}`}>
+          <div className={`${badge.bg} text-white px-3 py-1.5 rounded-lg text-xs font-bold ${badge.pulse ? 'animate-pulse' : ''}`}>
             {badge.text}
           </div>
         )}
       </div>
 
       {/* Teams */}
-      <div className="px-5 py-4">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-3">
-            <MascotImage src={game.home_team_mascot_image} color={homeColor} team="home" />
-            <div>
-              <p className="font-bold text-gray-900 text-sm">{game.home_team_name || 'Home'}</p>
-              <p className="text-gray-400 text-xs">{game.home_team_record}</p>
-            </div>
-          </div>
-          <span className="text-2xl font-black" style={{ color: homeColor }}>{homePct}%</span>
-        </div>
+      <div className="px-5 py-5 space-y-4">
+        <TeamRow
+          name={game.home_team_name} record={game.home_team_record}
+          abbr={game.home_team_abbr} pct={homePct} color={homeColor}
+          mascotSrc={game.home_team_mascot_image} team="home"
+          isWinner={winner === 'home'}
+        />
 
-        <div className="flex items-center justify-center my-3">
+        <div className="flex items-center gap-3 px-2">
           <div className="flex-1 h-px bg-gray-100" />
-          <span className="px-3 text-xs font-bold text-gray-300 uppercase">vs</span>
+          <span className="text-[10px] font-black text-gray-300 tracking-widest">VS</span>
           <div className="flex-1 h-px bg-gray-100" />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <MascotImage src={game.away_team_mascot_image} color={awayColor} team="away" />
-            <div>
-              <p className="font-bold text-gray-900 text-sm">{game.away_team_name || 'Away'}</p>
-              <p className="text-gray-400 text-xs">{game.away_team_record}</p>
-            </div>
-          </div>
-          <span className="text-2xl font-black" style={{ color: awayColor }}>{awayPct}%</span>
-        </div>
+        <TeamRow
+          name={game.away_team_name} record={game.away_team_record}
+          abbr={game.away_team_abbr} pct={awayPct} color={awayColor}
+          mascotSrc={game.away_team_mascot_image} team="away"
+          isWinner={winner === 'away'}
+        />
       </div>
 
       {/* Prediction bar */}
-      <div className="px-5 pb-3">
-        <div className="h-3 rounded-full overflow-hidden flex bg-gray-100">
-          <motion.div initial={{ width: 0 }} animate={{ width: `${homePct}%` }} transition={{ duration: 0.8 }} className="rounded-l-full" style={{ backgroundColor: homeColor }} />
-          <motion.div initial={{ width: 0 }} animate={{ width: `${awayPct}%` }} transition={{ duration: 0.8, delay: 0.1 }} className="rounded-r-full" style={{ backgroundColor: awayColor }} />
+      <div className="px-5 pb-2">
+        <div className="h-2.5 rounded-full overflow-hidden flex bg-gray-100 relative">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${homePct}%` }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+            className="rounded-l-full relative"
+            style={{ backgroundColor: homeColor }}
+          >
+            <div className="absolute inset-0 bar-shine" />
+          </motion.div>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${awayPct}%` }}
+            transition={{ duration: 1, ease: 'easeOut', delay: 0.15 }}
+            className="rounded-r-full"
+            style={{ backgroundColor: awayColor }}
+          />
         </div>
       </div>
 
       {/* Reason */}
       {game.reason_text && (
-        <div className="px-5 pb-4">
-          <p className="text-gray-500 text-xs leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">💡 {game.reason_text}</p>
+        <div className="px-5 pt-2 pb-1">
+          <p className="text-gray-400 text-xs leading-relaxed">
+            💡 <span className="text-gray-500">{game.reason_text}</span>
+          </p>
         </div>
       )}
 
       {/* Footer */}
-      <div className="px-5 pb-5">
+      <div className="p-5 pt-4">
         <button
           onClick={() => onOpenDetail?.(game)}
-          className="w-full py-3 bg-gray-50 hover:bg-navy hover:text-white text-gray-600 rounded-xl text-sm font-bold transition-colors border border-gray-100 hover:border-navy"
+          className="w-full py-3 bg-navy/5 hover:bg-navy text-navy hover:text-white rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-1.5 group/btn"
         >
           See Details
+          <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
         </button>
       </div>
     </motion.div>
