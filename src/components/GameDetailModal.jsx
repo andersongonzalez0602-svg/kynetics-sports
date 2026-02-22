@@ -29,23 +29,13 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
     setVoting(false)
   }
 
-  const MascotImg = ({ src, name }) => (
-    <>
-      <img src={src} alt={name} className="w-full h-full object-cover"
-        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
-      <div className="w-full h-full items-center justify-center absolute inset-0 hidden bg-gray-300">
-        <span className="text-gray-400 font-black text-2xl italic">{name}</span>
+  const Bar = ({ h = 'h-12' }) => (
+    <div className={`${h} rounded-2xl overflow-hidden flex`}>
+      <div className="flex items-center pl-4 rounded-l-2xl" style={{ width: `${hp}%`, backgroundColor: hc }}>
+        <span className="text-white text-lg font-black">{hp}%</span>
       </div>
-    </>
-  )
-
-  const GlassBar = ({ height = 'h-12' }) => (
-    <div className={`${height} rounded-2xl overflow-hidden flex`}>
-      <div className="flex items-center pl-4 bar-glass rounded-l-2xl" style={{ width: `${hp}%`, backgroundColor: hc }}>
-        <span className="text-white text-lg font-black relative z-10">{hp}%</span>
-      </div>
-      <div className="flex items-center justify-end pr-4 bar-glass rounded-r-2xl" style={{ width: `${ap}%`, backgroundColor: ac }}>
-        <span className="text-white text-lg font-black relative z-10">{ap}%</span>
+      <div className="flex items-center justify-end pr-4 rounded-r-2xl" style={{ width: `${ap}%`, backgroundColor: ac }}>
+        <span className="text-white text-lg font-black">{ap}%</span>
       </div>
     </div>
   )
@@ -71,13 +61,30 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
         <span className="text-[11px] text-gray-400 font-semibold">{tv.toLocaleString()} votes</span>
       </div>
       <div className="h-3 rounded-full overflow-hidden flex bg-gray-200 mb-2">
-        <div className="rounded-l-full bar-glass" style={{ width: `${hvp}%`, backgroundColor: hc }} />
-        <div className="rounded-r-full bar-glass" style={{ width: `${avp}%`, backgroundColor: ac }} />
+        <div className="rounded-l-full transition-all duration-500" style={{ width: `${hvp}%`, backgroundColor: hc }} />
+        <div className="rounded-r-full transition-all duration-500" style={{ width: `${avp}%`, backgroundColor: ac }} />
       </div>
       <div className="flex justify-between text-[11px] font-bold">
         <span style={{ color: hc }}>{hvp}% {game.home_team_abbr}</span>
         <span style={{ color: ac }}>{avp}% {game.away_team_abbr}</span>
       </div>
+    </div>
+  )
+
+  // Desktop side panel: image fills, text overlays with gradient
+  const SidePanel = ({ src, fullName, record, mascotName, side }) => (
+    <div className="w-[22%] flex flex-col relative overflow-hidden">
+      {/* Image fills entire panel */}
+      <img src={src} alt={mascotName} className="absolute inset-0 w-full h-full object-cover"
+        onError={e => { e.target.style.display='none' }} />
+      {/* Gradient for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none z-10" />
+      {/* Text */}
+      <div className={`relative z-20 p-5 pb-3 ${side === 'away' ? 'text-right' : ''}`}>
+        <p className="text-white font-black text-2xl lg:text-3xl uppercase leading-tight drop-shadow-lg">{fullName}</p>
+        <p className="text-white/60 text-sm font-bold mt-1 drop-shadow-sm">{record}</p>
+      </div>
+      <div className="flex-1" />
     </div>
   )
 
@@ -87,30 +94,24 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm" onClick={onClose}>
 
-          {/* ===== DESKTOP ===== */}
+          {/* DESKTOP */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.25 }}
             className="hidden md:flex fixed inset-y-12 inset-x-16 lg:inset-y-10 lg:inset-x-24 xl:inset-y-12 xl:inset-x-32 bg-white rounded-3xl overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 bg-black/20 hover:bg-black/40 rounded-full flex items-center justify-center transition-colors">
+            <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center transition-colors">
               <X className="w-5 h-5 text-white" />
             </button>
 
-            {/* Home panel - image fills naturally */}
-            <div className="w-[22%] flex flex-col overflow-hidden" style={{ backgroundColor: hc }}>
-              <div className="p-5 pb-3 relative z-10">
-                <p className="text-white font-black text-2xl lg:text-3xl uppercase leading-tight">{game.home_team_name}</p>
-                <p className="text-white/50 text-sm font-bold mt-1">{game.home_team_record}</p>
-              </div>
-              <div className="flex-1 relative overflow-hidden bg-gray-200">
-                <MascotImg src={hm} name={game.home_team_mascot_name || hn} />
-              </div>
-            </div>
+            <SidePanel src={hm} fullName={game.home_team_name} record={game.home_team_record} mascotName={game.home_team_mascot_name || hn} side="home" />
 
             {/* Center */}
             <div className="flex-1 overflow-y-auto px-8 py-6 lg:px-10 lg:py-8">
+              {game.game_time && game.status === 'upcoming' && (
+                <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>
+              )}
               {game.status && game.status !== 'upcoming' && (
                 <div className="flex justify-center mb-3">
                   <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${game.status === 'live' ? 'bg-red text-white animate-pulse' : 'bg-gray-200 text-gray-600'}`}>
@@ -118,21 +119,17 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                   </span>
                 </div>
               )}
-              {game.game_time && game.status === 'upcoming' && (
-                <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>
-              )}
 
               <div className="flex items-center justify-center gap-2 mb-4">
                 <TrendingUp className="w-4 h-4 text-navy" />
                 <span className="text-sm font-bold text-gray-800">Kynetics AI Prediction</span>
               </div>
 
-              <GlassBar height="h-14" />
+              <Bar h="h-14" />
               <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1 mt-2 mb-6">
                 <BarChart3 className="w-3 h-3" /> Based on {game.data_points || '10,000+'} data points analyzed
               </p>
 
-              {/* Stats */}
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Current Streak</p>
@@ -169,19 +166,10 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
               <CommunityBar />
             </div>
 
-            {/* Away panel */}
-            <div className="w-[22%] flex flex-col overflow-hidden" style={{ backgroundColor: ac }}>
-              <div className="p-5 pb-3 text-right relative z-10">
-                <p className="text-white font-black text-2xl lg:text-3xl uppercase leading-tight">{game.away_team_name}</p>
-                <p className="text-white/50 text-sm font-bold mt-1">{game.away_team_record}</p>
-              </div>
-              <div className="flex-1 relative overflow-hidden bg-gray-200">
-                <MascotImg src={am} name={game.away_team_mascot_name || an} />
-              </div>
-            </div>
+            <SidePanel src={am} fullName={game.away_team_name} record={game.away_team_record} mascotName={game.away_team_mascot_name || an} side="away" />
           </motion.div>
 
-          {/* ===== MOBILE ===== */}
+          {/* MOBILE */}
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
@@ -192,26 +180,20 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
               <X className="w-4 h-4 text-white" />
             </button>
 
-            {/* Mobile header */}
-            <div className="flex" style={{ minHeight: '80px' }}>
-              <div className="flex-1 p-3 flex flex-col justify-center" style={{ backgroundColor: hc }}>
-                <p className="text-white font-black text-lg uppercase leading-tight">{game.home_team_name}</p>
-                <p className="text-white/50 text-[10px] font-bold">{game.home_team_record}</p>
-              </div>
-              <div className="flex-1 p-3 flex flex-col justify-center items-end" style={{ backgroundColor: ac }}>
-                <p className="text-white font-black text-lg uppercase leading-tight text-right">{game.away_team_name}</p>
-                <p className="text-white/50 text-[10px] font-bold">{game.away_team_record}</p>
-              </div>
-            </div>
-
-            {/* Mobile mascots - flush, image fills */}
-            <div className="flex">
-              <div className="flex-1 aspect-square relative overflow-hidden bg-gray-200">
-                <MascotImg src={hm} name={game.home_team_mascot_name || hn} />
-              </div>
-              <div className="flex-1 aspect-square relative overflow-hidden bg-gray-200">
-                <MascotImg src={am} name={game.away_team_mascot_name || an} />
-              </div>
+            {/* Mobile: mascots with overlaid names */}
+            <div className="flex" style={{ aspectRatio: '16/9' }}>
+              {[{ src: hm, name: game.home_team_name, record: game.home_team_record, mn: game.home_team_mascot_name || hn, side: 'home' },
+                { src: am, name: game.away_team_name, record: game.away_team_record, mn: game.away_team_mascot_name || an, side: 'away' }].map((t, i) => (
+                <div key={i} className="flex-1 relative overflow-hidden">
+                  <img src={t.src} alt={t.mn} className="w-full h-full object-cover absolute inset-0"
+                    onError={e => { e.target.style.display='none' }} />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent z-10 pointer-events-none" />
+                  <div className={`relative z-20 p-3 ${t.side === 'away' ? 'text-right' : ''}`}>
+                    <p className="text-white font-black text-lg uppercase leading-tight drop-shadow-md">{t.name}</p>
+                    <p className="text-white/60 text-[10px] font-bold drop-shadow-sm">{t.record}</p>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Mobile content */}
@@ -221,7 +203,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                 <span className="text-sm font-bold text-gray-700">Kynetics AI Prediction</span>
               </div>
 
-              <GlassBar height="h-11" />
+              <Bar h="h-11" />
               <p className="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1 mt-2 mb-5">
                 <BarChart3 className="w-3 h-3" /> {game.data_points || '10,000+'} data points
               </p>
