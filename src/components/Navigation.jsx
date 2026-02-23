@@ -1,19 +1,19 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Flame, LogIn, LogOut, User } from 'lucide-react'
+import { Menu, X, LogIn, LogOut, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 const Navigation = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
-  const [authMode, setAuthMode] = useState('login') // 'login' or 'signup'
+  const [authMode, setAuthMode] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState('')
   const [authSuccess, setAuthSuccess] = useState('')
   const location = useLocation()
-  const { isLoggedIn, isAdmin, login, signup, logout, session } = useAuth()
+  const { isLoggedIn, isAdmin, login, signup, logout } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -55,7 +55,10 @@ const Navigation = () => {
           <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <img src="/logo.png" alt="Kynetics" className="h-8" />
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M8 6L24 16L8 26V6Z" fill="#00d4ff" opacity="0.8"/>
+                <path d="M4 10L20 20L4 28V10Z" fill="#1D428A"/>
+              </svg>
               <span className="font-display text-xl font-extrabold tracking-tight">
                 <span className="text-navy">KYNETICS</span>{' '}
                 <span className="text-gray-800">SPORTS</span>
@@ -80,11 +83,6 @@ const Navigation = () => {
               >
                 NBA
               </Link>
-              
-              <button className="flex items-center gap-2 bg-navy text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-navy-dark transition-colors">
-                <Flame className="w-4 h-4 text-orange-400" />
-                MY STREAK
-              </button>
 
               {isLoggedIn ? (
                 <div className="flex items-center gap-3">
@@ -165,7 +163,6 @@ const Navigation = () => {
               className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
-              {/* Header */}
               <div className="bg-gradient-to-r from-navy to-navy-dark px-8 pt-8 pb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
@@ -182,7 +179,6 @@ const Navigation = () => {
                 </p>
               </div>
 
-              {/* Form */}
               <div className="p-8">
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <div>
