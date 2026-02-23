@@ -8,33 +8,3 @@ html, body, #root { overflow-x: hidden; max-width: 100vw; }
 body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* Bar shine sweep */
-@keyframes barShine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-/* Glass highlight on top of bar segments */
-.bar-glass {
-  position: relative;
-  overflow: hidden;
-}
-.bar-glass::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.05) 100%);
-  pointer-events: none;
-}
-.bar-glass::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  animation: barShine 3s ease-in-out infinite;
-  pointer-events: none;
-}
