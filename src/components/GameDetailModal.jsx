@@ -29,23 +29,33 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
     setVoting(false)
   }
 
-  const Bar = ({ h = 'h-12' }) => (
-    <div className={`${h} rounded-2xl overflow-hidden flex`}>
-      <div className="flex items-center pl-4 rounded-l-2xl" style={{ width: `${hp}%`, backgroundColor: hc }}>
-        <span className="text-white text-lg font-black">{hp}%</span>
+  const MascotImg = ({ src, name }) => (
+    <>
+      <img src={src} alt={name} className="w-full h-full object-cover"
+        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+      <div className="w-full h-full items-center justify-center absolute inset-0 hidden bg-gray-300">
+        <span className="text-gray-400 font-black text-xl italic">{name}</span>
       </div>
-      <div className="flex items-center justify-end pr-4 rounded-r-2xl" style={{ width: `${ap}%`, backgroundColor: ac }}>
-        <span className="text-white text-lg font-black">{ap}%</span>
+    </>
+  )
+
+  const Bar = ({ h = 'h-11' }) => (
+    <div className={`${h} rounded-2xl overflow-hidden flex`}>
+      <div className="flex items-center pl-3 sm:pl-4 rounded-l-2xl" style={{ width: `${hp}%`, backgroundColor: hc }}>
+        <span className="text-white text-base sm:text-lg font-black">{hp}%</span>
+      </div>
+      <div className="flex items-center justify-end pr-3 sm:pr-4 rounded-r-2xl" style={{ width: `${ap}%`, backgroundColor: ac }}>
+        <span className="text-white text-base sm:text-lg font-black">{ap}%</span>
       </div>
     </div>
   )
 
   const VoteBtn = ({ team, name, color }) => (
     <button onClick={() => handleVote(team)} disabled={!!voted || voting}
-      className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all border-2 uppercase tracking-wide ${
+      className={`flex-1 py-3 sm:py-3.5 rounded-xl font-bold text-xs sm:text-sm transition-all border-2 uppercase tracking-wide active:scale-95 ${
         voted === team ? 'text-white shadow-lg scale-[1.02]' :
         voted ? 'opacity-25 border-gray-100 text-gray-300' :
-        'border-gray-200 text-gray-700 hover:shadow-md active:scale-95'
+        'border-gray-200 text-gray-700'
       }`}
       style={voted === team ? { backgroundColor: color, borderColor: color } : {}}>
       {voting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : name}
@@ -53,39 +63,54 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
   )
 
   const CommunityBar = () => (
-    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+    <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+        <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
           <Users className="w-3 h-3" /> Community
         </span>
-        <span className="text-[11px] text-gray-400 font-semibold">{tv.toLocaleString()} votes</span>
+        <span className="text-[10px] sm:text-[11px] text-gray-400 font-semibold">{tv.toLocaleString()} votes</span>
       </div>
-      <div className="h-3 rounded-full overflow-hidden flex bg-gray-200 mb-2">
-        <div className="rounded-l-full transition-all duration-500" style={{ width: `${hvp}%`, backgroundColor: hc }} />
-        <div className="rounded-r-full transition-all duration-500" style={{ width: `${avp}%`, backgroundColor: ac }} />
+      <div className="h-2.5 sm:h-3 rounded-full overflow-hidden flex bg-gray-200 mb-1.5">
+        <div className="rounded-l-full" style={{ width: `${hvp}%`, backgroundColor: hc }} />
+        <div className="rounded-r-full" style={{ width: `${avp}%`, backgroundColor: ac }} />
       </div>
-      <div className="flex justify-between text-[11px] font-bold">
+      <div className="flex justify-between text-[10px] sm:text-[11px] font-bold">
         <span style={{ color: hc }}>{hvp}% {game.home_team_abbr}</span>
         <span style={{ color: ac }}>{avp}% {game.away_team_abbr}</span>
       </div>
     </div>
   )
 
-  // Desktop side panel: image fills, text overlays with gradient
-  const SidePanel = ({ src, fullName, record, mascotName, side }) => (
-    <div className="w-[22%] flex flex-col relative overflow-hidden">
-      {/* Image fills entire panel */}
-      <img src={src} alt={mascotName} className="absolute inset-0 w-full h-full object-cover"
-        onError={e => { e.target.style.display='none' }} />
-      {/* Gradient for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none z-10" />
-      {/* Text */}
-      <div className={`relative z-20 p-5 pb-3 ${side === 'away' ? 'text-right' : ''}`}>
-        <p className="text-white font-black text-2xl lg:text-3xl uppercase leading-tight drop-shadow-lg">{fullName}</p>
-        <p className="text-white/60 text-sm font-bold mt-1 drop-shadow-sm">{record}</p>
+  const StatsSection = () => (
+    <>
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mb-4 sm:mb-5">
+        <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
+          <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 sm:mb-2">Streak</p>
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <span className="font-black text-xs sm:text-base" style={{ color: game.home_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
+              {game.home_team_abbr} {game.home_streak || '—'}
+            </span>
+            <span className="text-gray-200 font-bold">|</span>
+            <span className="font-black text-xs sm:text-base" style={{ color: game.away_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
+              {game.away_team_abbr} {game.away_streak || '—'}
+            </span>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
+          <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 sm:mb-2">H2H</p>
+          <p className="font-black text-xs sm:text-base text-gray-800">{game.head_to_head || 'No data'}</p>
+        </div>
       </div>
-      <div className="flex-1" />
-    </div>
+
+      {game.reason_text && (
+        <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-3 sm:p-4 mb-4 sm:mb-5">
+          <p className="text-[9px] sm:text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">
+            <TrendingUp className="w-3 h-3 inline mr-1" /> AI Insight
+          </p>
+          <p className="text-xs sm:text-sm text-blue-900 leading-relaxed">{game.reason_text}</p>
+        </div>
+      )}
+    </>
   )
 
   return (
@@ -97,21 +122,27 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
           {/* DESKTOP */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
             className="hidden md:flex fixed inset-y-12 inset-x-16 lg:inset-y-10 lg:inset-x-24 xl:inset-y-12 xl:inset-x-32 bg-white rounded-3xl overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center transition-colors">
+            <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <SidePanel src={hm} fullName={game.home_team_name} record={game.home_team_record} mascotName={game.home_team_mascot_name || hn} side="home" />
+            {/* Home panel */}
+            <div className="w-[22%] flex flex-col relative overflow-hidden">
+              <img src={hm} alt={hn} className="absolute inset-0 w-full h-full object-cover" onError={e => e.target.style.display='none'} />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none z-10" />
+              <div className="relative z-20 p-5 pb-3">
+                <p className="text-white font-black text-2xl lg:text-3xl uppercase leading-tight drop-shadow-lg">{game.home_team_name}</p>
+                <p className="text-white/60 text-sm font-bold mt-1">{game.home_team_record}</p>
+              </div>
+            </div>
 
             {/* Center */}
             <div className="flex-1 overflow-y-auto px-8 py-6 lg:px-10 lg:py-8">
-              {game.game_time && game.status === 'upcoming' && (
-                <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>
-              )}
+              {game.game_time && game.status === 'upcoming' && <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>}
               {game.status && game.status !== 'upcoming' && (
                 <div className="flex justify-center mb-3">
                   <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${game.status === 'live' ? 'bg-red text-white animate-pulse' : 'bg-gray-200 text-gray-600'}`}>
@@ -119,45 +150,15 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                   </span>
                 </div>
               )}
-
               <div className="flex items-center justify-center gap-2 mb-4">
                 <TrendingUp className="w-4 h-4 text-navy" />
                 <span className="text-sm font-bold text-gray-800">Kynetics AI Prediction</span>
               </div>
-
               <Bar h="h-14" />
               <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1 mt-2 mb-6">
                 <BarChart3 className="w-3 h-3" /> Based on {game.data_points || '10,000+'} data points analyzed
               </p>
-
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Current Streak</p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-black text-base" style={{ color: game.home_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
-                      {game.home_team_abbr} {game.home_streak || '—'}
-                    </span>
-                    <span className="text-gray-200 font-bold">|</span>
-                    <span className="font-black text-base" style={{ color: game.away_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
-                      {game.away_team_abbr} {game.away_streak || '—'}
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Head to Head</p>
-                  <p className="font-black text-base text-gray-800">{game.head_to_head || 'No data'}</p>
-                </div>
-              </div>
-
-              {game.reason_text && (
-                <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
-                  <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">
-                    <TrendingUp className="w-3 h-3 inline mr-1" /> AI Insight
-                  </p>
-                  <p className="text-sm text-blue-900 leading-relaxed">{game.reason_text}</p>
-                </div>
-              )}
-
+              <StatsSection />
               <h3 className="font-bold text-gray-700 mb-3 text-sm text-center">Your Vote</h3>
               <div className="flex gap-3 mb-4">
                 <VoteBtn team="home" name={hn} color={hc} />
@@ -166,78 +167,57 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
               <CommunityBar />
             </div>
 
-            <SidePanel src={am} fullName={game.away_team_name} record={game.away_team_record} mascotName={game.away_team_mascot_name || an} side="away" />
+            {/* Away panel */}
+            <div className="w-[22%] flex flex-col relative overflow-hidden">
+              <img src={am} alt={an} className="absolute inset-0 w-full h-full object-cover" onError={e => e.target.style.display='none'} />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none z-10" />
+              <div className="relative z-20 p-5 pb-3 text-right">
+                <p className="text-white font-black text-2xl lg:text-3xl uppercase leading-tight drop-shadow-lg">{game.away_team_name}</p>
+                <p className="text-white/60 text-sm font-bold mt-1">{game.away_team_record}</p>
+              </div>
+            </div>
           </motion.div>
 
           {/* MOBILE */}
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="md:hidden fixed inset-0 bg-white overflow-y-auto"
+            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+            className="md:hidden fixed inset-0 bg-white overflow-y-auto overscroll-contain"
             onClick={e => e.stopPropagation()}
           >
-            <button onClick={onClose} className="fixed top-3 right-3 z-30 w-9 h-9 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
+            <button onClick={onClose} className="fixed top-3 right-3 z-30 w-9 h-9 bg-black/40 rounded-full flex items-center justify-center">
               <X className="w-4 h-4 text-white" />
             </button>
 
-            {/* Mobile: mascots with overlaid names */}
-            <div className="flex" style={{ aspectRatio: '16/9' }}>
-              {[{ src: hm, name: game.home_team_name, record: game.home_team_record, mn: game.home_team_mascot_name || hn, side: 'home' },
-                { src: am, name: game.away_team_name, record: game.away_team_record, mn: game.away_team_mascot_name || an, side: 'away' }].map((t, i) => (
-                <div key={i} className="flex-1 relative overflow-hidden">
+            {/* Mobile: mascots side-by-side with overlaid names */}
+            <div className="flex" style={{ aspectRatio: '2/1' }}>
+              {[{ src: hm, name: game.home_team_name, record: game.home_team_record, mn: hn, side: 'l' },
+                { src: am, name: game.away_team_name, record: game.away_team_record, mn: an, side: 'r' }].map((t, i) => (
+                <div key={i} className="flex-1 relative overflow-hidden bg-gray-200">
                   <img src={t.src} alt={t.mn} className="w-full h-full object-cover absolute inset-0"
-                    onError={e => { e.target.style.display='none' }} />
+                    onError={e => e.target.style.display='none'} />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent z-10 pointer-events-none" />
-                  <div className={`relative z-20 p-3 ${t.side === 'away' ? 'text-right' : ''}`}>
-                    <p className="text-white font-black text-lg uppercase leading-tight drop-shadow-md">{t.name}</p>
-                    <p className="text-white/60 text-[10px] font-bold drop-shadow-sm">{t.record}</p>
+                  <div className={`relative z-20 p-2.5 ${t.side === 'r' ? 'text-right' : ''}`}>
+                    <p className="text-white font-black text-sm uppercase leading-tight drop-shadow-md">{t.name}</p>
+                    <p className="text-white/50 text-[9px] font-bold">{t.record}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Mobile content */}
-            <div className="p-4 pb-10">
-              <div className="flex items-center justify-center gap-2 mb-3 mt-2">
+            <div className="p-4 pb-8">
+              <div className="flex items-center justify-center gap-2 mb-3 mt-1">
                 <TrendingUp className="w-4 h-4 text-navy" />
                 <span className="text-sm font-bold text-gray-700">Kynetics AI Prediction</span>
               </div>
-
-              <Bar h="h-11" />
-              <p className="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1 mt-2 mb-5">
+              <Bar h="h-10" />
+              <p className="text-center text-[10px] text-gray-400 flex items-center justify-center gap-1 mt-1.5 mb-4">
                 <BarChart3 className="w-3 h-3" /> {game.data_points || '10,000+'} data points
               </p>
-
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Streak</p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-black text-sm" style={{ color: game.home_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
-                      {game.home_team_abbr} {game.home_streak || '—'}
-                    </span>
-                    <span className="text-gray-200">|</span>
-                    <span className="font-black text-sm" style={{ color: game.away_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
-                      {game.away_team_abbr} {game.away_streak || '—'}
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">H2H</p>
-                  <p className="font-black text-sm text-gray-800">{game.head_to_head || 'No data'}</p>
-                </div>
-              </div>
-
-              {game.reason_text && (
-                <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
-                  <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">
-                    <TrendingUp className="w-3 h-3 inline mr-1" /> AI Insight
-                  </p>
-                  <p className="text-sm text-blue-900 leading-relaxed">{game.reason_text}</p>
-                </div>
-              )}
-
-              <h3 className="font-bold text-gray-700 mb-3 text-sm text-center">Your Vote</h3>
-              <div className="flex gap-3 mb-4">
+              <StatsSection />
+              <h3 className="font-bold text-gray-700 mb-2.5 text-sm text-center">Your Vote</h3>
+              <div className="flex gap-2.5 mb-3">
                 <VoteBtn team="home" name={hn} color={hc} />
                 <VoteBtn team="away" name={an} color={ac} />
               </div>
