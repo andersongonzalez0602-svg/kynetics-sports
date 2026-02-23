@@ -55,10 +55,11 @@ const Navigation = () => {
           <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M8 6L24 16L8 26V6Z" fill="#00d4ff" opacity="0.8"/>
-                <path d="M4 10L20 20L4 28V10Z" fill="#1D428A"/>
-              </svg>
+              <img
+                src="/logo.png"
+                alt="Kynetics Sports logo"
+                className="h-8 w-auto"
+              />
               <span className="font-display text-xl font-extrabold tracking-tight">
                 <span className="text-navy">KYNETICS</span>{' '}
                 <span className="text-gray-800">SPORTS</span>
@@ -165,10 +166,11 @@ const Navigation = () => {
             >
               <div className="bg-gradient-to-r from-navy to-navy-dark px-8 pt-8 pb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
-                    <path d="M8 6L24 16L8 26V6Z" fill="#00d4ff" opacity="0.8"/>
-                    <path d="M4 10L20 20L4 28V10Z" fill="white"/>
-                  </svg>
+                  <img
+                    src="/logo.png"
+                    alt="Kynetics Sports logo"
+                    className="h-6 w-auto"
+                  />
                   <span className="text-white font-display font-extrabold text-sm">KYNETICS SPORTS</span>
                 </div>
                 <h2 className="text-2xl font-bold text-white">
