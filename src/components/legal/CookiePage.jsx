@@ -36,7 +36,7 @@ const CookiePage = () => (
     <p>We will update this policy if our cookie usage changes. Check the "Last Updated" date at the top.</p>
 
     <h2>5. Contact</h2>
-    <p>Questions about cookies: <a href="mailto:support@kyneticssports.com">support@kyneticssports.com</a></p>
+    <p>Questions about cookies: <a href="mailto:kyneticssports@gmail.com">kyneticssports@gmail.com</a></p>
   </LegalPage>
 )
 

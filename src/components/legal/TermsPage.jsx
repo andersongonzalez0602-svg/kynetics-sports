@@ -60,7 +60,7 @@ const TermsPage = () => (
     <p>These Terms are governed by the laws of the Bolivarian Republic of Venezuela. Any disputes shall be resolved in the courts of Caracas, Venezuela.</p>
 
     <h2>11. Contact</h2>
-    <p>For questions about these Terms, contact us at <a href="mailto:support@kyneticssports.com">support@kyneticssports.com</a>.</p>
+    <p>For questions about these Terms, contact us at <a href="mailto:kyneticssports@gmail.com">kyneticssports@gmail.com</a>.</p>
   </LegalPage>
 )
 

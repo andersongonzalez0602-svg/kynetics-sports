@@ -45,7 +45,7 @@ const PrivacyPage = () => (
       <li><strong>Object</strong> — opt out of marketing communications</li>
     </ul>
     <p>If you are in the EU/EEA (GDPR) or a US state with privacy laws (CCPA, VCDPA, etc.), you may have additional rights including data portability and the right to restrict processing.</p>
-    <p>To exercise any right, email us at <a href="mailto:support@kyneticssports.com">support@kyneticssports.com</a> with the subject "Privacy Request." We will respond within 30 days.</p>
+    <p>To exercise any right, email us at <a href="mailto:kyneticssports@gmail.com">kyneticssports@gmail.com</a> with the subject "Privacy Request." We will respond within 30 days.</p>
 
     <h2>8. Children's Privacy</h2>
     <p>The Service is not intended for users under 18. We do not knowingly collect personal information from children. If we learn we have collected data from a minor, we will delete it promptly.</p>
@@ -57,7 +57,7 @@ const PrivacyPage = () => (
     <p>We may update this policy from time to time. Changes take effect when posted with a new "Last Updated" date. Material changes will be communicated via email or prominent notice on the site.</p>
 
     <h2>11. Contact</h2>
-    <p>Privacy questions: <a href="mailto:support@kyneticssports.com">support@kyneticssports.com</a></p>
+    <p>Privacy questions: <a href="mailto:kyneticssports@gmail.com">kyneticssports@gmail.com</a></p>
   </LegalPage>
 )
 

@@ -41,7 +41,7 @@ const ResponsibleGamingPage = () => (
     <p>Kynetics Sports is strictly for users aged 18 and over. We recommend that parents use filtering software to prevent minors from accessing gambling-related content online.</p>
 
     <h2>5. Contact Us</h2>
-    <p>If you have concerns or need assistance: <a href="mailto:support@kyneticssports.com">support@kyneticssports.com</a></p>
+    <p>If you have concerns or need assistance: <a href="mailto:kyneticssports@gmail.com">kyneticssports@gmail.com</a></p>
   </LegalPage>
 )
 

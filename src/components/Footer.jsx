@@ -54,12 +54,12 @@ const Footer = () => {
           <div>
             <h4 className="text-cyan font-bold text-sm uppercase tracking-wider mb-4">Contact</h4>
             <p className="text-blue-200/60 text-sm mb-2">Questions or feedback?</p>
-            <a href="mailto:support@kyneticssports.com" className="text-white font-bold text-lg flex items-center gap-2 mb-1">
+            <a href="mailto:kyneticssports@gmail.com" className="text-white font-bold text-lg flex items-center gap-2 mb-1">
               <Mail className="w-4 h-4" />
-              support@kyneticssports.com
+              kyneticssports@gmail.com
             </a>
             <p className="text-cyan text-xs mb-4">Response within 24 hours</p>
-            <a href="mailto:support@kyneticssports.com" className="inline-block border border-white/30 text-white px-5 py-2 rounded text-sm font-medium hover:bg-white/10 transition-colors">
+            <a href="mailto:kyneticssports@gmail.com" className="inline-block border border-white/30 text-white px-5 py-2 rounded text-sm font-medium hover:bg-white/10 transition-colors">
               Send Message
             </a>
           </div>
