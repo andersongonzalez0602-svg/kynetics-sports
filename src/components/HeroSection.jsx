@@ -3,14 +3,16 @@ import { motion } from 'framer-motion'
 import { TrendingUp, Flame, CheckCircle, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
-import { getMascotUrl } from '@/lib/mascots'
+import { getMascotUrl, getRandomMascotUrl } from '@/lib/mascots'
+import { getEasternDateString } from '@/lib/dateUtils'
 
 const HeroSection = () => {
   const [topPick, setTopPick] = useState(null)
+  const [fallbackMascot] = useState(() => getRandomMascotUrl())
 
   useEffect(() => {
     const fetchTopPick = async () => {
-      const today = new Date().toISOString().split('T')[0]
+      const today = getEasternDateString()
       const { data } = await supabase
         .from('nba_games')
         .select('*')
@@ -49,11 +51,11 @@ const HeroSection = () => {
     fetchTopPick()
   }, [])
 
-  // Defaults if no games today
-  const teamName = topPick?.teamName || 'CLEVELAND'
-  const pct = topPick?.pct || 89
-  const teamColor = topPick?.teamColor || '#860038'
-  const mascotImage = topPick?.mascotImage
+  const hasTopPick = !!topPick
+  const teamName = topPick?.teamName
+  const pct = topPick?.pct
+  const teamColor = topPick?.teamColor || '#1D428A'
+  const mascotImage = topPick?.mascotImage || fallbackMascot
   const mascotName = topPick?.mascotName || 'Mascot'
   const opponent = topPick?.opponent
   const gameTime = topPick?.gameTime
@@ -73,11 +75,17 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.9] mb-3">
-              <span className="uppercase" style={{ color: teamColor }}>
-                {teamName?.split(' ').pop()}
-              </span>
-              <br />
-              <span style={{ color: teamColor }}>{pct}%</span>
+              {hasTopPick ? (
+                <>
+                  <span className="uppercase" style={{ color: teamColor }}>
+                    {teamName?.split(' ').pop()}
+                  </span>
+                  <br />
+                  <span style={{ color: teamColor }}>{pct}%</span>
+                </>
+              ) : (
+                <span style={{ color: teamColor }}>Don&apos;t miss any game</span>
+              )}
             </h1>
 
             {opponent && (
@@ -95,11 +103,11 @@ const HeroSection = () => {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
-            {topPick && (
+            {hasTopPick && (
               <div className="mt-5">
                 <div className="inline-flex items-center gap-2 border border-green-200 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg text-xs font-semibold">
                   <CheckCircle className="w-3.5 h-3.5" />
-                  {topPick ? `${new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' })} — ${(new Date().toISOString().split('T')[0]) === new Date().toISOString().split('T')[0] ? 'Live picks available' : ''}` : 'Picks coming soon'}
+                  {new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' })} — Live picks available
                 </div>
               </div>
             )}

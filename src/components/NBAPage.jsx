@@ -5,9 +5,10 @@ import GameCard from './GameCard'
 import GameDetailModal from './GameDetailModal'
 import AdminJSONPanel from './AdminJSONPanel'
 import { useNBAGames } from '@/hooks/useNBAGames'
+import { getEasternDateString } from '@/lib/dateUtils'
 
 const NBAPage = () => {
-  const today = new Date().toISOString().split('T')[0]
+  const today = getEasternDateString()
   const [currentDate, setCurrentDate] = useState(today)
   const [activeTab, setActiveTab] = useState('All')
   const [selectedGame, setSelectedGame] = useState(null)

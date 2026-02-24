@@ -3,13 +3,14 @@ import { motion } from 'framer-motion'
 import { Calendar, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
+import { getEasternDateString } from '@/lib/dateUtils'
 
 const StatsBar = () => {
   const [gamesToday, setGamesToday] = useState(null)
 
   useEffect(() => {
     const fetchCount = async () => {
-      const today = new Date().toISOString().split('T')[0]
+      const today = getEasternDateString()
       const { count } = await supabase
         .from('nba_games')
         .select('*', { count: 'exact', head: true })

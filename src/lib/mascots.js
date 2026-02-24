@@ -40,3 +40,10 @@ export const getMascotUrl = (abbr) => {
   if (!file) return null
   return `/${file}.png`
 }
+
+const ALL_MASCOT_FILES = Object.values(ABBR_TO_FILE)
+
+export const getRandomMascotUrl = () => {
+  const file = ALL_MASCOT_FILES[Math.floor(Math.random() * ALL_MASCOT_FILES.length)]
+  return `/${file}.png`
+}
