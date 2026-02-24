@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, BarChart3, TrendingUp, Users, Loader2 } from 'lucide-react'
 import { getMascotUrl } from '@/lib/mascots'
+import { useTranslation } from 'react-i18next'
 
 const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
   const [voting, setVoting] = useState(false)
   const [voted, setVoted] = useState(null)
+  const { t } = useTranslation()
 
   if (!game) return null
 
@@ -56,9 +58,11 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
     <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
-          <Users className="w-3 h-3" /> Community
+          <Users className="w-3 h-3" /> {t('dashboard.community')}
         </span>
-        <span className="text-[11px] text-gray-400 font-semibold">{tv.toLocaleString()} votes</span>
+        <span className="text-[11px] text-gray-400 font-semibold">
+          {tv.toLocaleString()} {t('dashboard.votes')}
+        </span>
       </div>
       <div className="h-3 rounded-full overflow-hidden flex bg-gray-200 mb-2">
         <div className="rounded-l-full transition-all duration-500" style={{ width: `${hvp}%`, backgroundColor: hc }} />
@@ -115,24 +119,26 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
               {game.status && game.status !== 'upcoming' && (
                 <div className="flex justify-center mb-3">
                   <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${game.status === 'live' ? 'bg-red text-white animate-pulse' : 'bg-gray-200 text-gray-600'}`}>
-                    {game.status === 'live' ? 'LIVE' : 'FINAL'}
+                    {game.status === 'live' ? t('dashboard.live') : t('dashboard.final')}
                   </span>
                 </div>
               )}
 
               <div className="flex items-center justify-center gap-2 mb-4">
                 <TrendingUp className="w-4 h-4 text-navy" />
-                <span className="text-sm font-bold text-gray-800">Kynetics AI Prediction</span>
+                <span className="text-sm font-bold text-gray-800">{t('dashboard.aiTitle')}</span>
               </div>
 
               <Bar h="h-14" />
               <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1 mt-2 mb-6">
-                <BarChart3 className="w-3 h-3" /> Based on {game.data_points || '10,000+'} data points analyzed
+                <BarChart3 className="w-3 h-3" />{t('dashboard.basedOnDataPoints', { count: game.data_points || '10,000+' })}
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Current Streak</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                    {t('dashboard.currentStreak')}
+                  </p>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-black text-base" style={{ color: game.home_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
                       {game.home_team_abbr} {game.home_streak || '—'}
@@ -144,21 +150,23 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                   </div>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Head to Head</p>
-                  <p className="font-black text-base text-gray-800">{game.head_to_head || 'No data'}</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                    {t('dashboard.headToHead')}
+                  </p>
+                  <p className="font-black text-base text-gray-800">{game.head_to_head || t('dashboard.noData')}</p>
                 </div>
               </div>
 
               {game.reason_text && (
                 <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
                   <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">
-                    <TrendingUp className="w-3 h-3 inline mr-1" /> AI Insight
+                    <TrendingUp className="w-3 h-3 inline mr-1" /> {t('dashboard.aiInsight')}
                   </p>
                   <p className="text-sm text-blue-900 leading-relaxed">{game.reason_text}</p>
                 </div>
               )}
 
-              <h3 className="font-bold text-gray-700 mb-3 text-sm text-center">Your Vote</h3>
+              <h3 className="font-bold text-gray-700 mb-3 text-sm text-center">{t('dashboard.yourVote')}</h3>
               <div className="flex gap-3 mb-4">
                 <VoteBtn team="home" name={hn} color={hc} />
                 <VoteBtn team="away" name={an} color={ac} />
@@ -200,17 +208,19 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
             <div className="p-4 pb-10">
               <div className="flex items-center justify-center gap-2 mb-3 mt-2">
                 <TrendingUp className="w-4 h-4 text-navy" />
-                <span className="text-sm font-bold text-gray-700">Kynetics AI Prediction</span>
+                <span className="text-sm font-bold text-gray-700">{t('dashboard.aiTitle')}</span>
               </div>
 
               <Bar h="h-11" />
               <p className="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1 mt-2 mb-5">
-                <BarChart3 className="w-3 h-3" /> {game.data_points || '10,000+'} data points
+                <BarChart3 className="w-3 h-3" /> {t('dashboard.basedOnDataPointsShort', { count: game.data_points || '10,000+' })}
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Streak</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    {t('dashboard.streakShort')}
+                  </p>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-black text-sm" style={{ color: game.home_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
                       {game.home_team_abbr} {game.home_streak || '—'}
@@ -222,21 +232,23 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                   </div>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">H2H</p>
-                  <p className="font-black text-sm text-gray-800">{game.head_to_head || 'No data'}</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    {t('dashboard.h2hShort')}
+                  </p>
+                  <p className="font-black text-sm text-gray-800">{game.head_to_head || t('dashboard.noData')}</p>
                 </div>
               </div>
 
               {game.reason_text && (
                 <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
                   <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">
-                    <TrendingUp className="w-3 h-3 inline mr-1" /> AI Insight
+                    <TrendingUp className="w-3 h-3 inline mr-1" /> {t('dashboard.aiInsight')}
                   </p>
                   <p className="text-sm text-blue-900 leading-relaxed">{game.reason_text}</p>
                 </div>
               )}
 
-              <h3 className="font-bold text-gray-700 mb-3 text-sm text-center">Your Vote</h3>
+              <h3 className="font-bold text-gray-700 mb-3 text-sm text-center">{t('dashboard.yourVote')}</h3>
               <div className="flex gap-3 mb-4">
                 <VoteBtn team="home" name={hn} color={hc} />
                 <VoteBtn team="away" name={an} color={ac} />

@@ -3,9 +3,11 @@ import { motion } from 'framer-motion'
 import { Clock, TrendingUp, Trash2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getMascotUrl } from '@/lib/mascots'
+import { useTranslation } from 'react-i18next'
 
 const GameCard = ({ game, onOpenDetail, onDelete }) => {
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
   const hc = game.home_team_color || '#1D428A'
   const ac = game.away_team_color || '#333333'
   const hp = game.home_win_pct || 50
@@ -57,21 +59,30 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
         {/* VS circle */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <span className="text-[9px] font-black text-gray-400">VS</span>
+            <span className="text-[9px] font-black text-gray-400">{t('dashboard.vs')}</span>
           </div>
         </div>
 
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5">
           <div className="flex items-center gap-1 bg-black/30 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-bold">
-            {game.status === 'live' ? <><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> LIVE</> :
-             game.status === 'final' ? 'FINAL' : <><Clock className="w-2.5 h-2.5" /> {game.game_time || 'TBD'}</>}
+            {game.status === 'live' ? (
+              <>
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> {t('dashboard.live')}
+              </>
+            ) : game.status === 'final' ? (
+              t('dashboard.final')
+            ) : (
+              <>
+                <Clock className="w-2.5 h-2.5" /> {game.game_time || 'TBD'}
+              </>
+            )}
           </div>
         </div>
         {game.is_value_pick && (
           <div className="absolute top-2.5 right-2.5 z-20">
             <div className="flex items-center gap-1 bg-emerald-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm">
-              <TrendingUp className="w-2.5 h-2.5" /> VALUE
+              <TrendingUp className="w-2.5 h-2.5" /> {t('dashboard.value')}
             </div>
           </div>
         )}
@@ -79,7 +90,9 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
 
       {/* PREDICTION BAR - solid, clean */}
       <div className="px-3 pt-4 pb-1">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">AI Prediction</p>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+          {t('dashboard.aiPredictionLabel')}
+        </p>
         <div className="h-10 sm:h-11 rounded-xl overflow-hidden flex">
           <motion.div initial={{ width: 0 }} animate={{ width: `${hp}%` }} transition={{ duration: 1, ease: 'easeOut' }}
             className="flex items-center pl-3 rounded-l-xl"
@@ -108,7 +121,7 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
       {/* BUTTON */}
       <div className="p-3 pt-3">
         <div className="w-full py-3.5 bg-gray-50 group-hover:bg-navy text-gray-400 group-hover:text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-1 border border-gray-100 group-hover:border-navy">
-          See Details →
+          {t('dashboard.seeDetails')}
         </div>
       </div>
     </motion.div>
