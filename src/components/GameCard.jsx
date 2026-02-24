@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 
 const GameCard = ({ game, onOpenDetail, onDelete }) => {
   const { isAdmin } = useAuth()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const hc = game.home_team_color || '#1D428A'
   const ac = game.away_team_color || '#333333'
   const hp = game.home_win_pct || 50
@@ -16,6 +16,10 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
   const am = game.away_team_mascot_image || getMascotUrl(game.away_team_abbr)
   const hn = game.home_team_name?.split(' ').pop() || game.home_team_abbr
   const an = game.away_team_name?.split(' ').pop() || game.away_team_abbr
+  const reasonText =
+    i18n.language?.startsWith('es')
+      ? game.reason_text_es || game.reason_text
+      : game.reason_text
 
   const handleDelete = (e) => {
     e.stopPropagation()
@@ -112,9 +116,11 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
       </div>
 
       {/* REASON */}
-      {game.reason_text && (
+      {reasonText && (
         <div className="px-3 pt-2">
-          <p className="text-gray-400 text-xs leading-relaxed">💡 <span className="text-gray-500">{game.reason_text}</span></p>
+          <p className="text-gray-400 text-xs leading-relaxed">
+            💡 <span className="text-gray-500">{reasonText}</span>
+          </p>
         </div>
       )}
 

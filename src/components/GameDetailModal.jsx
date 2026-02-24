@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
   const [voting, setVoting] = useState(false)
   const [voted, setVoted] = useState(null)
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   if (!game) return null
 
@@ -22,6 +22,10 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
   const am = game.away_team_mascot_image || getMascotUrl(game.away_team_abbr)
   const hn = game.home_team_name?.split(' ').pop() || game.home_team_abbr
   const an = game.away_team_name?.split(' ').pop() || game.away_team_abbr
+  const reasonText =
+    i18n.language?.startsWith('es')
+      ? game.reason_text_es || game.reason_text
+      : game.reason_text
 
   const handleVote = async (team) => {
     if (voted || voting) return
@@ -157,12 +161,12 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                 </div>
               </div>
 
-              {game.reason_text && (
+              {reasonText && (
                 <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
                   <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">
                     <TrendingUp className="w-3 h-3 inline mr-1" /> {t('dashboard.aiInsight')}
                   </p>
-                  <p className="text-sm text-blue-900 leading-relaxed">{game.reason_text}</p>
+                  <p className="text-sm text-blue-900 leading-relaxed">{reasonText}</p>
                 </div>
               )}
 
@@ -239,12 +243,12 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                 </div>
               </div>
 
-              {game.reason_text && (
+              {reasonText && (
                 <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
                   <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">
                     <TrendingUp className="w-3 h-3 inline mr-1" /> {t('dashboard.aiInsight')}
                   </p>
-                  <p className="text-sm text-blue-900 leading-relaxed">{game.reason_text}</p>
+                  <p className="text-sm text-blue-900 leading-relaxed">{reasonText}</p>
                 </div>
               )}
 
