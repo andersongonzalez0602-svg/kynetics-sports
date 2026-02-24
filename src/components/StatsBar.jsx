@@ -4,9 +4,11 @@ import { Calendar, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
 import { getEasternDateString } from '@/lib/dateUtils'
+import { useTranslation } from 'react-i18next'
 
 const StatsBar = () => {
   const [gamesToday, setGamesToday] = useState(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -42,13 +44,11 @@ const StatsBar = () => {
                     {gamesToday !== null ? gamesToday : '—'}
                   </span>
                   <span className="text-sm md:text-base font-semibold text-gray-400">
-                    {gamesToday === 1 ? 'Game' : 'Games'} Today
+                    {gamesToday === 1 ? t('statsBar.game') : t('statsBar.games')} {t('statsBar.today')}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {gamesToday > 0
-                    ? 'AI predictions ready — tap to explore'
-                    : 'Check back later for upcoming matchups'}
+                  {gamesToday > 0 ? t('statsBar.ready') : t('statsBar.later')}
                 </p>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, LogIn, LogOut, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from 'react-i18next'
 
 const Navigation = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -14,6 +15,14 @@ const Navigation = () => {
   const [authSuccess, setAuthSuccess] = useState('')
   const location = useLocation()
   const { isLoggedIn, isAdmin, login, signup, logout } = useAuth()
+  const { t, i18n } = useTranslation()
+
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('lang', lang)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -74,7 +83,7 @@ const Navigation = () => {
                   location.pathname === '/' ? 'text-navy' : 'text-gray-500 hover:text-gray-800'
                 }`}
               >
-                Home
+                {t('nav.home')}
               </Link>
               <Link 
                 to="/nba" 
@@ -82,14 +91,32 @@ const Navigation = () => {
                   location.pathname === '/nba' ? 'text-navy' : 'text-gray-500 hover:text-gray-800'
                 }`}
               >
-                NBA
+                {t('nav.nba')}
               </Link>
+
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-400">
+                <button
+                  type="button"
+                  onClick={() => changeLanguage('en')}
+                  className={i18n.language === 'en' ? 'text-navy' : 'hover:text-gray-700'}
+                >
+                  EN
+                </button>
+                <span className="text-gray-300">|</span>
+                <button
+                  type="button"
+                  onClick={() => changeLanguage('es')}
+                  className={i18n.language === 'es' ? 'text-navy' : 'hover:text-gray-700'}
+                >
+                  ES
+                </button>
+              </div>
 
               {isLoggedIn ? (
                 <div className="flex items-center gap-3">
                   {isAdmin && (
                     <span className="text-xs bg-red/10 text-red px-2 py-1 rounded-full font-bold">
-                      ADMIN
+                      {t('nav.admin')}
                     </span>
                   )}
                   <div className="w-8 h-8 rounded-full bg-navy/10 flex items-center justify-center">
@@ -108,7 +135,7 @@ const Navigation = () => {
                   className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-navy transition-colors"
                 >
                   <LogIn className="w-4 h-4" />
-                  Login
+                  {t('nav.login')}
                 </button>
               )}
             </div>
@@ -130,15 +157,15 @@ const Navigation = () => {
               className="md:hidden bg-white border-t overflow-hidden"
             >
               <div className="px-4 py-4 flex flex-col gap-3">
-                <Link to="/" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>Home</Link>
-                <Link to="/nba" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>NBA</Link>
+                <Link to="/" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>{t('nav.home')}</Link>
+                <Link to="/nba" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>{t('nav.nba')}</Link>
                 {isLoggedIn ? (
                   <button onClick={() => { logout(); setMobileOpen(false); }} className="text-sm font-semibold text-red py-2 text-left flex items-center gap-2">
-                    <LogOut className="w-4 h-4" /> Logout
+                    <LogOut className="w-4 h-4" /> {t('nav.logout')}
                   </button>
                 ) : (
                   <button onClick={() => { setShowAuth(true); setMobileOpen(false); }} className="text-sm font-semibold text-navy py-2 text-left flex items-center gap-2">
-                    <LogIn className="w-4 h-4" /> Login
+                    <LogIn className="w-4 h-4" /> {t('nav.login')}
                   </button>
                 )}
               </div>
@@ -174,17 +201,17 @@ const Navigation = () => {
                   <span className="text-white font-display font-extrabold text-sm">KYNETICS SPORTS</span>
                 </div>
                 <h2 className="text-2xl font-bold text-white">
-                  {authMode === 'login' ? 'Welcome back' : 'Create account'}
+                  {authMode === 'login' ? t('auth.welcomeBack') : t('auth.createAccount')}
                 </h2>
                 <p className="text-blue-200 text-sm mt-1">
-                  {authMode === 'login' ? 'Sign in to access your account' : 'Join the Kynetics community'}
+                  {authMode === 'login' ? t('auth.loginSubtitle') : t('auth.signupSubtitle')}
                 </p>
               </div>
 
               <div className="p-8">
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Email</label>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">{t('auth.emailLabel')}</label>
                     <input
                       type="email"
                       placeholder="you@email.com"
@@ -195,7 +222,7 @@ const Navigation = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Password</label>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">{t('auth.passwordLabel')}</label>
                     <input
                       type="password"
                       placeholder="••••••••"
@@ -217,13 +244,13 @@ const Navigation = () => {
                     type="submit" 
                     className="w-full bg-navy text-white py-3 rounded-lg font-bold hover:bg-navy-dark transition-colors mt-2"
                   >
-                    {authMode === 'login' ? 'Sign In' : 'Create Account'}
+                    {authMode === 'login' ? t('auth.signIn') : t('auth.createAccountCta')}
                   </button>
                 </form>
 
                 <div className="mt-6 text-center">
                   <p className="text-gray-400 text-sm">
-                    {authMode === 'login' ? "Don't have an account?" : "Already have an account?"}
+                    {authMode === 'login' ? t('auth.noAccount') : t('auth.hasAccount')}
                     <button 
                       onClick={() => {
                         setAuthMode(authMode === 'login' ? 'signup' : 'login')
@@ -232,7 +259,7 @@ const Navigation = () => {
                       }}
                       className="text-navy font-semibold ml-1 hover:underline"
                     >
-                      {authMode === 'login' ? 'Sign up' : 'Sign in'}
+                      {authMode === 'login' ? t('auth.signUp') : t('auth.signIn')}
                     </button>
                   </p>
                 </div>

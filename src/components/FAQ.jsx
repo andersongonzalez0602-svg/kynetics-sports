@@ -1,42 +1,22 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Minus } from 'lucide-react'
-
-const faqs = [
-  {
-    q: 'How does the prediction model work?',
-    a: 'Our Kynetics Engine™ analyzes over 10,000 data points per game including player performance, historical matchups, team momentum, and more to calculate win probabilities.'
-  },
-  {
-    q: 'How accurate are the predictions?',
-    a: 'Our AI maintains an average accuracy of 82% across all NBA predictions. Accuracy is measured daily and reported transparently on the homepage.'
-  },
-  {
-    q: 'Is this a betting platform?',
-    a: 'No. Kynetics Sports is for entertainment purposes only. We provide data-driven insights and predictions but do not facilitate any form of betting.'
-  },
-  {
-    q: 'How often is data updated?',
-    a: 'Game predictions are updated daily before each matchup. Live game statuses are updated in real-time during games.'
-  },
-  {
-    q: 'Can I participate in community voting?',
-    a: 'Yes! Anyone can vote on game outcomes. Community sentiment is displayed alongside our AI predictions for every matchup.'
-  },
-]
+import { useTranslation } from 'react-i18next'
 
 const FAQ = () => {
   const [open, setOpen] = useState(null)
+  const { t } = useTranslation()
+  const faqs = t('faq.items', { returnObjects: true })
 
   return (
     <section className="bg-white py-20 md:py-28">
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
-          <p className="text-red font-bold text-sm tracking-widest uppercase mb-3">Support & Help</p>
+          <p className="text-red font-bold text-sm tracking-widest uppercase mb-3">{t('faq.tag')}</p>
           <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-            Frequently Asked Questions
+            {t('faq.title')}
           </h2>
-          <p className="text-gray-500">Everything you need to know about our methodology.</p>
+          <p className="text-gray-500">{t('faq.subtitle')}</p>
         </div>
 
         <div className="flex flex-col gap-3">

@@ -1,8 +1,10 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const CallToAction = () => {
+  const { t } = useTranslation()
   return (
     <section className="relative overflow-hidden py-16 md:py-20">
       {/* Background */}
@@ -16,16 +18,16 @@ const CallToAction = () => {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl md:text-4xl font-black text-white italic mb-4">
-            Real-Time Data Analysis
+            {t('cta.title')}
           </h2>
           <p className="text-blue-200 text-lg mb-8">
-            Get instant insights into every NBA matchup
+            {t('cta.body')}
           </p>
           <Link 
             to="/nba"
             className="inline-block bg-red text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-red/90 transition-colors shadow-lg shadow-red/30"
           >
-            Watch Games
+            {t('cta.button')}
           </Link>
         </motion.div>
       </div>

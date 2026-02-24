@@ -6,12 +6,14 @@ import GameDetailModal from './GameDetailModal'
 import AdminJSONPanel from './AdminJSONPanel'
 import { useNBAGames } from '@/hooks/useNBAGames'
 import { getEasternDateString } from '@/lib/dateUtils'
+import { useTranslation } from 'react-i18next'
 
 const NBAPage = () => {
   const today = getEasternDateString()
   const [currentDate, setCurrentDate] = useState(today)
   const [activeTab, setActiveTab] = useState('All')
   const [selectedGame, setSelectedGame] = useState(null)
+  const { t, i18n } = useTranslation()
 
   const { games, loading, error, fetchGamesByDate, deleteGame, voteForTeam } = useNBAGames()
 
@@ -34,7 +36,10 @@ const NBAPage = () => {
     setCurrentDate(d.toISOString().split('T')[0])
   }
 
-  const formattedDate = new Date(currentDate + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })
+  const formattedDate = new Date(currentDate + 'T12:00:00').toLocaleDateString(
+    i18n.language === 'es' ? 'es-ES' : 'en-US',
+    { weekday: 'long', month: 'long', day: 'numeric' },
+  )
   const isToday = currentDate === today
 
   return (
@@ -51,24 +56,24 @@ const NBAPage = () => {
                 <ChevronLeft className="w-5 h-5 text-white" />
               </button>
               <div className="flex-1">
-                <h1 className="text-2xl md:text-4xl font-black text-white">{formattedDate}</h1>
-                {isToday && <span className="text-cyan text-xs font-bold uppercase tracking-wider">Today</span>}
+                <h1 className="text-2xl md:text-4xl font-black text-white capitalize">{formattedDate}</h1>
+                {isToday && <span className="text-cyan text-xs font-bold uppercase tracking-wider">{t('nba.todayLabel')}</span>}
               </div>
               <button onClick={() => shiftDate(1)} className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
                 <ChevronRight className="w-5 h-5 text-white" />
               </button>
             </div>
             <p className="text-blue-200/70 text-sm md:text-base max-w-2xl mb-4 leading-relaxed">
-              AI-powered predictions and original mascot designs for every NBA matchup.
+              {t('nba.headerDescription')}
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2 bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl">
                 <span className="text-2xl font-black text-cyan">{games.length}</span>
-                <span className="text-sm font-semibold text-white/70">Games</span>
+                <span className="text-sm font-semibold text-white/70">{t('nba.gamesLabel')}</span>
               </div>
               {!isToday && (
                 <button onClick={() => setCurrentDate(today)} className="text-sm font-semibold text-cyan/80 hover:text-cyan bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl transition-colors">
-                  ← Back to Today
+                  {t('nba.backToToday')}
                 </button>
               )}
             </div>
@@ -86,7 +91,7 @@ const NBAPage = () => {
               return (
                 <button key={tab} onClick={() => setActiveTab(tab)}
                   className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab===tab ? 'bg-navy text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
-                  {tab}
+                  {t(`nba.tabs.${tab.toLowerCase()}`)}
                   {tab==='Live' && count>0 && <span className="ml-1.5 w-1.5 h-1.5 bg-red rounded-full inline-block animate-pulse" />}
                   {tab!=='All' && count>0 && <span className={`ml-1.5 text-xs ${activeTab===tab ? 'text-white/60' : 'text-gray-300'}`}>{count}</span>}
                 </button>
@@ -99,7 +104,7 @@ const NBAPage = () => {
       {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {loading ? (
-          <div className="flex flex-col items-center py-20"><Loader2 className="w-8 h-8 text-navy animate-spin mb-3" /><p className="text-gray-400 text-sm">Loading games...</p></div>
+          <div className="flex flex-col items-center py-20"><Loader2 className="w-8 h-8 text-navy animate-spin mb-3" /><p className="text-gray-400 text-sm">{t('nba.loading')}</p></div>
         ) : error ? (
           <div className="flex flex-col items-center py-20"><AlertCircle className="w-10 h-10 text-red mb-3" /><p className="text-red text-sm font-bold">{error}</p></div>
         ) : filtered.length > 0 ? (
@@ -115,9 +120,9 @@ const NBAPage = () => {
         ) : (
           <div className="flex flex-col items-center py-20 text-gray-300">
             <Calendar className="w-12 h-12 mb-4 text-gray-200" />
-            <p className="text-lg font-bold text-gray-400">No games for this date</p>
-            <p className="text-sm text-gray-300 mt-1">Try a different day or check back later.</p>
-            {!isToday && <button onClick={() => setCurrentDate(today)} className="mt-4 text-sm font-semibold text-navy hover:underline">Go to Today</button>}
+            <p className="text-lg font-bold text-gray-400">{t('nba.noGamesTitle')}</p>
+            <p className="text-sm text-gray-300 mt-1">{t('nba.noGamesBody')}</p>
+            {!isToday && <button onClick={() => setCurrentDate(today)} className="mt-4 text-sm font-semibold text-navy hover:underline">{t('nba.goToToday')}</button>}
           </div>
         )}
       </div>

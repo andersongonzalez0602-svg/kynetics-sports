@@ -2,6 +2,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Zap, Layers, Wifi } from 'lucide-react'
 import { getMascotUrl } from '@/lib/mascots'
+import { useTranslation } from 'react-i18next'
 
 const mascotSlots = [
   { abbr: 'HOU', name: 'HOUSTON', color: '#CE1141' },
@@ -13,6 +14,8 @@ const mascotSlots = [
 ]
 
 const MascotsSection = () => {
+  const { t } = useTranslation()
+
   return (
     <section>
       {/* Top - Dark blue intro */}
@@ -23,15 +26,15 @@ const MascotsSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Meet the Mascots</h2>
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6">{t('mascots.title')}</h2>
             <p className="text-blue-200 text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
-              Every team has a character. We designed unique mascots that capture the spirit and energy of each franchise. Collect them, compare them, and follow your favorites.
+              {t('mascots.intro')}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               {[
-                { icon: Zap, label: 'Original Designs' },
-                { icon: Layers, label: '30 NBA Teams' },
-                { icon: Wifi, label: 'Updated Daily' },
+                { icon: Zap, label: t('mascots.badges.original') },
+                { icon: Layers, label: t('mascots.badges.teams') },
+                { icon: Wifi, label: t('mascots.badges.daily') },
               ].map((badge, i) => (
                 <div key={i} className="flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full text-white/80 text-sm font-medium">
                   <badge.icon className="w-4 h-4 text-cyan" />
@@ -53,10 +56,10 @@ const MascotsSection = () => {
             className="text-center mb-12"
           >
             <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 italic">
-              Today's Featured Teams
+              {t('mascots.featuredTitle')}
             </h3>
             <p className="text-gray-500 max-w-lg mx-auto">
-              These are today's highlighted matchups and their mascots.
+              {t('mascots.featuredBody')}
             </p>
             <div className="w-16 h-1 bg-cyan mx-auto rounded-full mt-4" />
           </motion.div>

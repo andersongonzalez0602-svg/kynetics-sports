@@ -5,11 +5,13 @@ import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
 import { getMascotUrl, getRandomMascotUrl } from '@/lib/mascots'
 import { getEasternDateString } from '@/lib/dateUtils'
+import { useTranslation } from 'react-i18next'
 
 const HeroSection = () => {
   const [topPick, setTopPick] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fallbackMascot] = useState(() => getRandomMascotUrl())
+  const { t } = useTranslation()
 
   useEffect(() => {
     const fetchTopPick = async () => {
@@ -73,7 +75,7 @@ const HeroSection = () => {
             <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold mb-6">
               <TrendingUp className="w-3.5 h-3.5 text-red" />
               <Flame className="w-3.5 h-3.5 text-orange-500" />
-              TODAY'S TOP PICK
+              {t('hero.badge')}
             </div>
 
             {loading ? (
@@ -92,7 +94,7 @@ const HeroSection = () => {
                     <span style={{ color: teamColor }}>{pct}%</span>
                   </>
                 ) : (
-                  <span style={{ color: teamColor }}>Don&apos;t miss any game</span>
+                  <span style={{ color: teamColor }}>{t('hero.fallbackTitle')}</span>
                 )}
               </h1>
             )}
@@ -104,11 +106,11 @@ const HeroSection = () => {
             )}
 
             <p className="text-gray-500 text-base md:text-lg leading-relaxed mb-6 max-w-md">
-              Predictions, stats, and matchups for every NBA game — powered by data analysis and brought to life with unique team mascots.
+              {t('hero.description')}
             </p>
 
             <Link to="/nba" className="inline-flex items-center gap-2 text-white px-7 py-3.5 rounded-xl text-sm font-bold transition-colors group" style={{ backgroundColor: teamColor }}>
-              See Full Prediction
+              {t('hero.button')}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
@@ -116,7 +118,7 @@ const HeroSection = () => {
               <div className="mt-5">
                 <div className="inline-flex items-center gap-2 border border-green-200 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg text-xs font-semibold">
                   <CheckCircle className="w-3.5 h-3.5" />
-                  {new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' })} — Live picks available
+                  {new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' })} — {t('hero.livePicks')}
                 </div>
               </div>
             )}
