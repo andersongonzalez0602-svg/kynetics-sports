@@ -8,6 +8,7 @@ import { getEasternDateString } from '@/lib/dateUtils'
 
 const HeroSection = () => {
   const [topPick, setTopPick] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [fallbackMascot] = useState(() => getRandomMascotUrl())
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const HeroSection = () => {
           })
         }
       }
+      setLoading(false)
     }
     fetchTopPick()
   }, [])
@@ -74,21 +76,28 @@ const HeroSection = () => {
               TODAY'S TOP PICK
             </div>
 
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.9] mb-3">
-              {hasTopPick ? (
-                <>
-                  <span className="uppercase" style={{ color: teamColor }}>
-                    {teamName?.split(' ').pop()}
-                  </span>
-                  <br />
-                  <span style={{ color: teamColor }}>{pct}%</span>
-                </>
-              ) : (
-                <span style={{ color: teamColor }}>Don&apos;t miss any game</span>
-              )}
-            </h1>
+            {loading ? (
+              <div className="mb-3 space-y-3">
+                <div className="h-14 md:h-16 w-48 bg-gray-200 rounded-lg animate-pulse" />
+                <div className="h-12 md:h-14 w-24 bg-gray-200 rounded-lg animate-pulse" />
+              </div>
+            ) : (
+              <h1 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[0.9] mb-3">
+                {hasTopPick ? (
+                  <>
+                    <span className="uppercase" style={{ color: teamColor }}>
+                      {teamName?.split(' ').pop()}
+                    </span>
+                    <br />
+                    <span style={{ color: teamColor }}>{pct}%</span>
+                  </>
+                ) : (
+                  <span style={{ color: teamColor }}>Don&apos;t miss any game</span>
+                )}
+              </h1>
+            )}
 
-            {opponent && (
+            {!loading && opponent && (
               <p className="text-gray-400 text-sm font-semibold mb-4">
                 vs {opponent} {gameTime ? `• ${gameTime}` : ''}
               </p>
@@ -115,8 +124,8 @@ const HeroSection = () => {
 
           {/* Right — Mascot */}
           <motion.div initial={{ opacity:0, scale:0.95 }} animate={{ opacity:1, scale:1 }} transition={{ duration:0.5, delay:0.15 }} className="flex justify-center order-1 md:order-2">
-            <div className="w-full max-w-xs md:max-w-md aspect-square rounded-3xl overflow-hidden shadow-2xl relative" style={{ backgroundColor: teamColor }}>
-              {mascotImage ? (
+            <div className={`w-full max-w-xs md:max-w-md aspect-square rounded-3xl overflow-hidden shadow-2xl relative ${loading ? 'bg-gray-200 animate-pulse' : ''}`} style={loading ? undefined : { backgroundColor: teamColor }}>
+              {loading ? null : mascotImage ? (
                 <img
                   src={mascotImage}
                   alt={mascotName}
