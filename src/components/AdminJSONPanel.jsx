@@ -32,6 +32,7 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
         home_win_pct: g.prediction?.home_win_pct||50, away_win_pct: g.prediction?.away_win_pct||50,
         data_points: g.prediction?.data_points||0, home_streak: g.home?.streak||'', away_streak: g.away?.streak||'',
         head_to_head: g.prediction?.head_to_head||'', reason_text: g.prediction?.reason||'',
+        reason_text_es: g.prediction?.reason_es||'',
         community_votes_home: 0, community_votes_away: 0,
       }))
       setPreview(rows)
@@ -162,7 +163,8 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
         "away_win_pct": 28,
         "data_points": 48,
         "head_to_head": "Rockets 2-0",
-        "reason": "HOU 4-game win streak at home. BKN 3-9 in last 12 away."
+        "reason": "HOU 4-game win streak at home. BKN 3-9 in last 12 away.",
+        "reason_es": "HOU racha de 4 victorias en casa. BKN 3-9 en últimos 12 de visitante."
       }
     }
   ]

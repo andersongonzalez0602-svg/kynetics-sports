@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 
 const GameCard = ({ game, onOpenDetail, onDelete }) => {
   const { isAdmin } = useAuth()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const hc = game.home_team_color || '#1D428A'
   const ac = game.away_team_color || '#333333'
   const hp = game.home_win_pct || 50
@@ -112,11 +112,14 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
       </div>
 
       {/* REASON */}
-      {game.reason_text && (
-        <div className="px-3 pt-2">
-          <p className="text-gray-400 text-xs leading-relaxed">💡 <span className="text-gray-500">{game.reason_text}</span></p>
-        </div>
-      )}
+      {(() => {
+        const reason = i18n.language === 'es' && game.reason_text_es ? game.reason_text_es : game.reason_text
+        return reason ? (
+          <div className="px-3 pt-2">
+            <p className="text-gray-400 text-xs leading-relaxed">💡 <span className="text-gray-500">{reason}</span></p>
+          </div>
+        ) : null
+      })()}
 
       {/* BUTTON */}
       <div className="p-3 pt-3">
