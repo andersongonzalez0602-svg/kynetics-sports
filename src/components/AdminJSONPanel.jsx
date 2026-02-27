@@ -31,6 +31,7 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
         away_team_color: g.away?.color||'#333333', away_team_mascot_name: g.away?.mascot_name||'',
         home_win_pct: g.prediction?.home_win_pct||50, away_win_pct: g.prediction?.away_win_pct||50,
         data_points: g.prediction?.data_points||0, home_streak: g.home?.streak||'', away_streak: g.away?.streak||'',
+        home_last5: g.home?.last5||'', away_last5: g.away?.last5||'',
         head_to_head: g.prediction?.head_to_head||'', reason_text: g.prediction?.reason||'',
         reason_text_es: g.prediction?.reason_es||'',
         community_votes_home: 0, community_votes_away: 0,
@@ -148,7 +149,8 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
         "record": "35-18",
         "color": "#CE1141",
         "mascot_name": "Bear",
-        "streak": "W4"
+        "streak": "W4",
+        "last5": "WWLWW"
       },
       "away": {
         "name": "Brooklyn Nets",
@@ -156,11 +158,12 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
         "record": "22-30",
         "color": "#000000",
         "mascot_name": "Knight",
-        "streak": "L2"
+        "streak": "L2",
+        "last5": "LLWLW"
       },
       "prediction": {
-        "home_win_pct": 72,
-        "away_win_pct": 28,
+        "home_win_pct": 72.3,
+        "away_win_pct": 27.7,
         "data_points": 48,
         "head_to_head": "Rockets 2-0",
         "reason": "HOU 4-game win streak at home. BKN 3-9 in last 12 away.",

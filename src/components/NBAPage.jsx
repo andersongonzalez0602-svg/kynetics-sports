@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Filter, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import GameCard from './GameCard'
@@ -14,10 +14,53 @@ const NBAPage = () => {
   const [activeTab, setActiveTab] = useState('All')
   const [selectedGame, setSelectedGame] = useState(null)
   const { t, i18n } = useTranslation()
+  const modalOpenRef = useRef(false)
 
   const { games, loading, error, fetchGamesByDate, deleteGame, voteForTeam } = useNBAGames()
 
   useEffect(() => { fetchGamesByDate(currentDate) }, [currentDate, fetchGamesByDate])
+
+  // ─── Back button fix ───
+  // When modal opens: push a fake history entry
+  // When user presses back: popstate fires → close modal (instead of leaving page)
+  // When modal closes via X: go back to remove the fake entry
+  const openModal = useCallback((game) => {
+    setSelectedGame(game)
+    modalOpenRef.current = true
+    window.history.pushState({ kynModal: true }, '')
+  }, [])
+
+  const closeModal = useCallback(() => {
+    if (modalOpenRef.current) {
+      modalOpenRef.current = false
+      setSelectedGame(null)
+    }
+  }, [])
+
+  const closeModalViaButton = useCallback(() => {
+    // User clicked X or tapped overlay — remove the fake history entry
+    if (modalOpenRef.current) {
+      modalOpenRef.current = false
+      setSelectedGame(null)
+      // Go back to pop the fake entry we pushed (won't trigger our handler because modalOpenRef is already false)
+      if (window.history.state?.kynModal) {
+        window.history.back()
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    const handlePop = () => {
+      if (modalOpenRef.current) {
+        // Back button pressed while modal is open → just close modal
+        modalOpenRef.current = false
+        setSelectedGame(null)
+      }
+    }
+    window.addEventListener('popstate', handlePop)
+    return () => window.removeEventListener('popstate', handlePop)
+  }, [])
+  // ─── End back button fix ───
 
   const filteredGames = () => {
     if (activeTab === 'All') return games
@@ -112,7 +155,7 @@ const NBAPage = () => {
             <AnimatePresence mode="popLayout">
               {filtered.map((game, i) => (
                 <motion.div key={game.id} layout initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, scale:0.95 }} transition={{ duration:0.3, delay:i*0.05 }}>
-                  <GameCard game={game} onOpenDetail={setSelectedGame} onDelete={async id => { const r = await deleteGame(id); if(!r.success) alert(r.error) }} />
+                  <GameCard game={game} onOpenDetail={openModal} onDelete={async id => { const r = await deleteGame(id); if(!r.success) alert(r.error) }} />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -127,7 +170,7 @@ const NBAPage = () => {
         )}
       </div>
 
-      <GameDetailModal game={selectedGame} isOpen={!!selectedGame} onClose={() => setSelectedGame(null)} onVote={async (id,t) => await voteForTeam(id,t)} />
+      <GameDetailModal game={selectedGame} isOpen={!!selectedGame} onClose={closeModalViaButton} onVote={async (id,t) => await voteForTeam(id,t)} />
       <AdminJSONPanel onGamesUpdated={() => fetchGamesByDate(currentDate)} currentDate={currentDate} />
     </div>
   )
