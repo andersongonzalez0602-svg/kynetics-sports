@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, TrendingUp, Users, Loader2 } from 'lucide-react'
+import { X, TrendingUp, Users, Loader2, MapPin, LogIn } from 'lucide-react'
 import { getMascotUrl } from '@/lib/mascots'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/contexts/AuthContext'
 
-const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
+const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   const [voting, setVoting] = useState(false)
-  const [voted, setVoted] = useState(null)
   const { t, i18n } = useTranslation()
+  const { isLoggedIn } = useAuth()
 
   if (!game) return null
 
@@ -27,14 +28,13 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
   const fmtPct = (v) => `${v}%`
 
   const handleVote = async (team) => {
-    if (voted || voting) return
+    if (userVote || voting || !isLoggedIn) return
     setVoting(true)
-    const r = await onVote?.(game.id, team)
-    if (r?.success) setVoted(team)
+    await onVote?.(game.id, team)
     setVoting(false)
   }
 
-  // Parse L5 string like "WLWWL"
+  // Parse L5
   const parseL5 = (str) => {
     if (!str) return null
     const arr = str.toUpperCase().split('').filter(c => c === 'W' || c === 'L')
@@ -44,11 +44,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
   const awayL5 = parseL5(game.away_last5)
 
   const L5Badge = ({ char }) => (
-    <span className={`inline-flex items-center justify-center w-6 h-6 rounded text-[10px] font-black text-white ${
-      char === 'W' ? 'bg-emerald-500' : 'bg-red'
-    }`}>
-      {char}
-    </span>
+    <span className={`inline-flex items-center justify-center w-6 h-6 rounded text-[10px] font-black text-white ${char === 'W' ? 'bg-emerald-500' : 'bg-red'}`}>{char}</span>
   )
 
   const L5Row = ({ abbr, last5 }) => {
@@ -59,9 +55,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold text-gray-500 uppercase">{abbr}</span>
         <div className="flex items-center gap-1">
-          <div className="flex gap-0.5 mr-2">
-            {last5.map((c, i) => <L5Badge key={i} char={c} />)}
-          </div>
+          <div className="flex gap-0.5 mr-2">{last5.map((c, i) => <L5Badge key={i} char={c} />)}</div>
           <span className="text-sm font-black text-gray-700">{wins}-{losses}</span>
         </div>
       </div>
@@ -72,9 +66,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
     if (!streak) return null
     const isWin = streak.startsWith('W')
     return (
-      <span className={`inline-flex items-center font-black uppercase tracking-wide ${
-        small ? 'text-[10px] px-2 py-0.5 rounded' : 'text-xs px-2.5 py-1 rounded-lg'
-      } ${isWin ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red/15 text-red-400'}`}>
+      <span className={`inline-flex items-center font-black uppercase tracking-wide ${small ? 'text-[10px] px-2 py-0.5 rounded' : 'text-xs px-2.5 py-1 rounded-lg'} ${isWin ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red/15 text-red-400'}`}>
         {streak}
       </span>
     )
@@ -91,17 +83,21 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
     </div>
   )
 
-  const VoteBtn = ({ team, name, color }) => (
-    <button onClick={() => handleVote(team)} disabled={!!voted || voting}
-      className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all border-2 uppercase tracking-wide ${
-        voted === team ? 'text-white shadow-lg scale-[1.02]' :
-        voted ? 'opacity-25 border-gray-100 text-gray-300' :
-        'border-gray-200 text-gray-700 hover:shadow-md active:scale-95'
-      }`}
-      style={voted === team ? { backgroundColor: color, borderColor: color } : {}}>
-      {voting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : name}
-    </button>
-  )
+  const VoteBtn = ({ team, name, color }) => {
+    const isThisVote = userVote === team
+    const hasVoted = !!userVote
+    return (
+      <button onClick={() => handleVote(team)} disabled={hasVoted || voting || !isLoggedIn}
+        className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all border-2 uppercase tracking-wide ${
+          isThisVote ? 'text-white shadow-lg scale-[1.02]' :
+          hasVoted ? 'opacity-25 border-gray-100 text-gray-300' :
+          'border-gray-200 text-gray-700 hover:shadow-md active:scale-95'
+        } ${!isLoggedIn ? 'opacity-50 cursor-not-allowed' : ''}`}
+        style={isThisVote ? { backgroundColor: color, borderColor: color } : {}}>
+        {voting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : name}
+      </button>
+    )
+  }
 
   const CommunityBar = () => (
     <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
@@ -117,11 +113,9 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
     </div>
   )
 
-  // Desktop side panel
   const SidePanel = ({ src, fullName, record, mascotName, side, abbr, streak }) => (
     <div className="w-[22%] flex flex-col relative overflow-hidden">
-      <img src={src} alt={mascotName} className="absolute inset-0 w-full h-full object-cover"
-        onError={e => { e.target.style.display='none' }} />
+      <img src={src} alt={mascotName} className="absolute inset-0 w-full h-full object-cover" onError={e => { e.target.style.display='none' }} />
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none z-10" />
       <div className={`relative z-20 p-5 pb-3 ${side === 'away' ? 'text-right' : ''}`}>
         <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest mb-1">
@@ -135,10 +129,9 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
     </div>
   )
 
-  // ─── Shared center content (used by both desktop and mobile) ───
+  // Shared center content
   const CenterContent = ({ barHeight, isMobile }) => (
     <>
-      {/* Status */}
       {game.game_time && game.status === 'upcoming' && (
         <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>
       )}
@@ -150,31 +143,25 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
         </div>
       )}
 
-      {/* AI header */}
       <div className="flex items-center justify-center gap-2 mb-4">
         <TrendingUp className="w-4 h-4 text-navy" />
-        <span className={`font-bold text-gray-${isMobile ? '700' : '800'} ${isMobile ? 'text-sm' : 'text-sm'}`}>
+        <span className={`font-bold ${isMobile ? 'text-sm text-gray-700' : 'text-sm text-gray-800'}`}>
           {t('dashboard.aiTitle')} · {game.data_points || '10,000+'} {t('dashboard.dataPoints')}
         </span>
       </div>
 
       <Bar h={barHeight} />
 
-      {/* Streaks + H2H */}
+      {/* Game Info + H2H (replaced streak with arena) */}
       <div className="grid grid-cols-2 gap-3 mt-5 mb-5">
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>
-            {isMobile ? t('dashboard.streakShort') : t('dashboard.currentStreak')}
+            {t('dashboard.gameInfo')}
           </p>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className={`font-black ${isMobile ? 'text-sm' : 'text-base'}`} style={{ color: game.home_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
-              {game.home_team_abbr} {game.home_streak || '—'}
-            </span>
-            <span className="text-gray-200 font-bold">|</span>
-            <span className={`font-black ${isMobile ? 'text-sm' : 'text-base'}`} style={{ color: game.away_streak?.startsWith('W') ? '#16a34a' : '#dc2626' }}>
-              {game.away_team_abbr} {game.away_streak || '—'}
-            </span>
-          </div>
+          <p className="font-bold text-sm text-gray-700">{game.game_time || 'TBD'}</p>
+          <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+            <MapPin className="w-3 h-3" /> {game.home_team_name?.split(' ').slice(0, -1).join(' ') || game.home_team_abbr}
+          </p>
         </div>
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>
@@ -211,6 +198,20 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
       <h3 className="font-bold text-gray-400 mb-3 text-[10px] text-center uppercase tracking-widest">
         {t('dashboard.communityVoteTitle')}
       </h3>
+
+      {!isLoggedIn && (
+        <div className="bg-navy/5 border border-navy/10 rounded-xl p-3 mb-3 flex items-center justify-center gap-2">
+          <LogIn className="w-3.5 h-3.5 text-navy" />
+          <span className="text-xs font-semibold text-navy">{t('dashboard.loginToVote')}</span>
+        </div>
+      )}
+
+      {userVote && (
+        <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 mb-3 flex items-center justify-center gap-2">
+          <span className="text-xs font-semibold text-emerald-600">{t('dashboard.alreadyVoted')}</span>
+        </div>
+      )}
+
       <div className="flex gap-3 mb-4">
         <VoteBtn team="home" name={hn} color={hc} />
         <VoteBtn team="away" name={an} color={ac} />
@@ -226,47 +227,33 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
           className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm" onClick={onClose}>
 
           {/* DESKTOP */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.25 }}
             className="hidden md:flex fixed inset-y-12 inset-x-16 lg:inset-y-10 lg:inset-x-24 xl:inset-y-12 xl:inset-x-32 bg-white rounded-3xl overflow-hidden shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
+            onClick={e => e.stopPropagation()}>
             <button onClick={onClose} className="absolute top-4 right-4 z-30 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center transition-colors">
               <X className="w-5 h-5 text-white" />
             </button>
-
-            <SidePanel src={hm} fullName={game.home_team_name} record={game.home_team_record}
-              mascotName={game.home_team_mascot_name || hn} side="home" abbr={game.home_team_abbr}
-              streak={game.home_streak} />
-
+            <SidePanel src={hm} fullName={game.home_team_name} record={game.home_team_record} mascotName={game.home_team_mascot_name || hn} side="home" abbr={game.home_team_abbr} streak={game.home_streak} />
             <div className="flex-1 overflow-y-auto px-8 py-6 lg:px-10 lg:py-8">
               <CenterContent barHeight="h-14" isMobile={false} />
             </div>
-
-            <SidePanel src={am} fullName={game.away_team_name} record={game.away_team_record}
-              mascotName={game.away_team_mascot_name || an} side="away" abbr={game.away_team_abbr}
-              streak={game.away_streak} />
+            <SidePanel src={am} fullName={game.away_team_name} record={game.away_team_record} mascotName={game.away_team_mascot_name || an} side="away" abbr={game.away_team_abbr} streak={game.away_streak} />
           </motion.div>
 
           {/* MOBILE */}
-          <motion.div
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+          <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="md:hidden fixed inset-0 bg-white overflow-y-auto"
-            onClick={e => e.stopPropagation()}
-          >
+            onClick={e => e.stopPropagation()}>
             <button onClick={onClose} className="fixed top-3 right-3 z-30 w-9 h-9 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
               <X className="w-4 h-4 text-white" />
             </button>
-
-            {/* Mobile: mascots with HOME/AWAY labels */}
             <div className="flex" style={{ aspectRatio: '16/9' }}>
               {[{ src: hm, name: game.home_team_name, record: game.home_team_record, mn: game.home_team_mascot_name || hn, side: 'home', abbr: game.home_team_abbr, streak: game.home_streak },
                 { src: am, name: game.away_team_name, record: game.away_team_record, mn: game.away_team_mascot_name || an, side: 'away', abbr: game.away_team_abbr, streak: game.away_streak }].map((tm, i) => (
                 <div key={i} className="flex-1 relative overflow-hidden">
-                  <img src={tm.src} alt={tm.mn} className="w-full h-full object-cover absolute inset-0"
-                    onError={e => { e.target.style.display='none' }} />
+                  <img src={tm.src} alt={tm.mn} className="w-full h-full object-cover absolute inset-0" onError={e => { e.target.style.display='none' }} />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent z-10 pointer-events-none" />
                   <div className={`relative z-20 p-3 ${tm.side === 'away' ? 'text-right' : ''}`}>
                     <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-0.5">
@@ -279,7 +266,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote }) => {
                 </div>
               ))}
             </div>
-
             <div className="p-4 pb-10 mt-2">
               <CenterContent barHeight="h-11" isMobile={true} />
             </div>

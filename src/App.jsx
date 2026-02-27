@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/contexts/AuthContext'
 import Navigation from '@/components/Navigation'
+import UsernameModal from '@/components/UsernameModal'
 import HeroSection from '@/components/HeroSection'
 import StatsBar from '@/components/StatsBar'
 import HowItWorks from '@/components/HowItWorks'
@@ -37,6 +38,7 @@ function App() {
     <AuthProvider>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navigation />
+        <UsernameModal />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<HomePage />} />

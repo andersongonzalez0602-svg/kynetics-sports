@@ -5,6 +5,7 @@ import GameCard from './GameCard'
 import GameDetailModal from './GameDetailModal'
 import AdminJSONPanel from './AdminJSONPanel'
 import { useNBAGames } from '@/hooks/useNBAGames'
+import { useUserPredictions } from '@/hooks/useUserPredictions'
 import { getEasternDateString } from '@/lib/dateUtils'
 import { useTranslation } from 'react-i18next'
 
@@ -17,13 +18,18 @@ const NBAPage = () => {
   const modalOpenRef = useRef(false)
 
   const { games, loading, error, fetchGamesByDate, deleteGame, voteForTeam } = useNBAGames()
+  const { userVotes, fetchUserVotes, castVote } = useUserPredictions()
 
   useEffect(() => { fetchGamesByDate(currentDate) }, [currentDate, fetchGamesByDate])
 
+  // Fetch user votes when games load
+  useEffect(() => {
+    if (games.length > 0) {
+      fetchUserVotes(games.map(g => g.id))
+    }
+  }, [games, fetchUserVotes])
+
   // ─── Back button fix ───
-  // When modal opens: push a fake history entry
-  // When user presses back: popstate fires → close modal (instead of leaving page)
-  // When modal closes via X: go back to remove the fake entry
   const openModal = useCallback((game) => {
     setSelectedGame(game)
     modalOpenRef.current = true
@@ -38,11 +44,9 @@ const NBAPage = () => {
   }, [])
 
   const closeModalViaButton = useCallback(() => {
-    // User clicked X or tapped overlay — remove the fake history entry
     if (modalOpenRef.current) {
       modalOpenRef.current = false
       setSelectedGame(null)
-      // Go back to pop the fake entry we pushed (won't trigger our handler because modalOpenRef is already false)
       if (window.history.state?.kynModal) {
         window.history.back()
       }
@@ -52,7 +56,6 @@ const NBAPage = () => {
   useEffect(() => {
     const handlePop = () => {
       if (modalOpenRef.current) {
-        // Back button pressed while modal is open → just close modal
         modalOpenRef.current = false
         setSelectedGame(null)
       }
@@ -60,7 +63,16 @@ const NBAPage = () => {
     window.addEventListener('popstate', handlePop)
     return () => window.removeEventListener('popstate', handlePop)
   }, [])
-  // ─── End back button fix ───
+
+  // Vote handler — uses per-user voting
+  const handleVote = async (gameId, team) => {
+    const result = await castVote(gameId, team)
+    if (result.success) {
+      // Refresh games to get updated community counts
+      await fetchGamesByDate(currentDate)
+    }
+    return result
+  }
 
   const filteredGames = () => {
     if (activeTab === 'All') return games
@@ -87,7 +99,6 @@ const NBAPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-[70px]">
-      {/* Header */}
       <div className="bg-gradient-to-br from-navy via-navy to-navy-dark relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-cyan rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
@@ -124,7 +135,6 @@ const NBAPage = () => {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="sticky top-[70px] z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
@@ -144,7 +154,6 @@ const NBAPage = () => {
         </div>
       </div>
 
-      {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {loading ? (
           <div className="flex flex-col items-center py-20"><Loader2 className="w-8 h-8 text-navy animate-spin mb-3" /><p className="text-gray-400 text-sm">{t('nba.loading')}</p></div>
@@ -170,7 +179,13 @@ const NBAPage = () => {
         )}
       </div>
 
-      <GameDetailModal game={selectedGame} isOpen={!!selectedGame} onClose={closeModalViaButton} onVote={async (id,t) => await voteForTeam(id,t)} />
+      <GameDetailModal
+        game={selectedGame}
+        isOpen={!!selectedGame}
+        onClose={closeModalViaButton}
+        onVote={handleVote}
+        userVote={selectedGame ? userVotes[selectedGame.id] : null}
+      />
       <AdminJSONPanel onGamesUpdated={() => fetchGamesByDate(currentDate)} currentDate={currentDate} />
     </div>
   )
