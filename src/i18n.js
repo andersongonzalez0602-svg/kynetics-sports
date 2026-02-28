@@ -121,7 +121,7 @@ const resources = {
           },
           {
             q: 'Can I participate in community voting?',
-            a: 'Yes! Sign in with Google to vote on game outcomes. Community sentiment is displayed alongside our AI predictions for every matchup.',
+            a: 'Yes! Anyone can vote on game outcomes. Community sentiment is displayed alongside our AI predictions for every matchup.',
           },
         ],
       },
@@ -314,7 +314,7 @@ const resources = {
           },
           {
             q: '¿Puedo participar en la votación de la comunidad?',
-            a: 'Sí. Inicia sesión con Google para votar el resultado de los juegos. El sentimiento de la comunidad se muestra junto a nuestras predicciones de IA.',
+            a: 'Sí. Cualquiera puede votar el resultado de los juegos. El sentimiento de la comunidad se muestra junto a nuestras predicciones de IA.',
           },
         ],
       },
@@ -411,3 +411,4 @@ i18n.use(initReactI18next).init({
 })
 
 export default i18n
+

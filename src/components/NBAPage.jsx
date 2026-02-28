@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Filter, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import GameCard from './GameCard'
@@ -13,43 +13,37 @@ const NBAPage = () => {
   const today = getEasternDateString()
   const [currentDate, setCurrentDate] = useState(today)
   const [activeTab, setActiveTab] = useState('All')
-  const [selectedGame, setSelectedGame] = useState(null)
+  const [selectedGameId, setSelectedGameId] = useState(null)
   const { t, i18n } = useTranslation()
   const modalOpenRef = useRef(false)
 
-  const { games, loading, error, fetchGamesByDate, deleteGame, voteForTeam } = useNBAGames()
+  const { games, loading, error, fetchGamesByDate, deleteGame } = useNBAGames()
   const { userVotes, fetchUserVotes, castVote } = useUserPredictions()
 
   useEffect(() => { fetchGamesByDate(currentDate) }, [currentDate, fetchGamesByDate])
 
-  // Fetch user votes when games load
   useEffect(() => {
-    if (games.length > 0) {
-      fetchUserVotes(games.map(g => g.id))
-    }
+    if (games.length > 0) fetchUserVotes(games.map(g => g.id))
   }, [games, fetchUserVotes])
+
+  // Derive selectedGame from games array so it auto-updates after refetch
+  const selectedGame = useMemo(() => {
+    if (!selectedGameId) return null
+    return games.find(g => g.id === selectedGameId) || null
+  }, [selectedGameId, games])
 
   // ─── Back button fix ───
   const openModal = useCallback((game) => {
-    setSelectedGame(game)
+    setSelectedGameId(game.id)
     modalOpenRef.current = true
     window.history.pushState({ kynModal: true }, '')
-  }, [])
-
-  const closeModal = useCallback(() => {
-    if (modalOpenRef.current) {
-      modalOpenRef.current = false
-      setSelectedGame(null)
-    }
   }, [])
 
   const closeModalViaButton = useCallback(() => {
     if (modalOpenRef.current) {
       modalOpenRef.current = false
-      setSelectedGame(null)
-      if (window.history.state?.kynModal) {
-        window.history.back()
-      }
+      setSelectedGameId(null)
+      if (window.history.state?.kynModal) window.history.back()
     }
   }, [])
 
@@ -57,18 +51,17 @@ const NBAPage = () => {
     const handlePop = () => {
       if (modalOpenRef.current) {
         modalOpenRef.current = false
-        setSelectedGame(null)
+        setSelectedGameId(null)
       }
     }
     window.addEventListener('popstate', handlePop)
     return () => window.removeEventListener('popstate', handlePop)
   }, [])
 
-  // Vote handler — uses per-user voting
   const handleVote = async (gameId, team) => {
     const result = await castVote(gameId, team)
     if (result.success) {
-      // Refresh games to get updated community counts
+      // Refetch games so community counts update in the modal
       await fetchGamesByDate(currentDate)
     }
     return result
@@ -117,9 +110,7 @@ const NBAPage = () => {
                 <ChevronRight className="w-5 h-5 text-white" />
               </button>
             </div>
-            <p className="text-blue-200/70 text-sm md:text-base max-w-2xl mb-4 leading-relaxed">
-              {t('nba.headerDescription')}
-            </p>
+            <p className="text-blue-200/70 text-sm md:text-base max-w-2xl mb-4 leading-relaxed">{t('nba.headerDescription')}</p>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2 bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl">
                 <span className="text-2xl font-black text-cyan">{games.length}</span>
@@ -184,7 +175,7 @@ const NBAPage = () => {
         isOpen={!!selectedGame}
         onClose={closeModalViaButton}
         onVote={handleVote}
-        userVote={selectedGame ? userVotes[selectedGame.id] : null}
+        userVote={selectedGameId ? userVotes[selectedGameId] : null}
       />
       <AdminJSONPanel onGamesUpdated={() => fetchGamesByDate(currentDate)} currentDate={currentDate} />
     </div>

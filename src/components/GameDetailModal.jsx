@@ -4,6 +4,7 @@ import { X, TrendingUp, Users, Loader2, MapPin, LogIn } from 'lucide-react'
 import { getMascotUrl } from '@/lib/mascots'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
+import Navigation from './Navigation'
 
 const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   const [voting, setVoting] = useState(false)
@@ -34,7 +35,11 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
     setVoting(false)
   }
 
-  // Parse L5
+  const handleLoginClick = () => {
+    onClose()
+    setTimeout(() => Navigation.openAuth?.(), 300)
+  }
+
   const parseL5 = (str) => {
     if (!str) return null
     const arr = str.toUpperCase().split('').filter(c => c === 'W' || c === 'L')
@@ -66,9 +71,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
     if (!streak) return null
     const isWin = streak.startsWith('W')
     return (
-      <span className={`inline-flex items-center font-black uppercase tracking-wide ${small ? 'text-[10px] px-2 py-0.5 rounded' : 'text-xs px-2.5 py-1 rounded-lg'} ${isWin ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red/15 text-red-400'}`}>
-        {streak}
-      </span>
+      <span className={`inline-flex items-center font-black uppercase tracking-wide ${small ? 'text-[10px] px-2 py-0.5 rounded' : 'text-xs px-2.5 py-1 rounded-lg'} ${isWin ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red/15 text-red-400'}`}>{streak}</span>
     )
   }
 
@@ -87,12 +90,12 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
     const isThisVote = userVote === team
     const hasVoted = !!userVote
     return (
-      <button onClick={() => handleVote(team)} disabled={hasVoted || voting || !isLoggedIn}
+      <button onClick={() => isLoggedIn ? handleVote(team) : handleLoginClick()} disabled={hasVoted || voting}
         className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all border-2 uppercase tracking-wide ${
           isThisVote ? 'text-white shadow-lg scale-[1.02]' :
-          hasVoted ? 'opacity-25 border-gray-100 text-gray-300' :
+          hasVoted ? 'opacity-25 border-gray-100 text-gray-300 cursor-default' :
           'border-gray-200 text-gray-700 hover:shadow-md active:scale-95'
-        } ${!isLoggedIn ? 'opacity-50 cursor-not-allowed' : ''}`}
+        }`}
         style={isThisVote ? { backgroundColor: color, borderColor: color } : {}}>
         {voting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : name}
       </button>
@@ -129,7 +132,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
     </div>
   )
 
-  // Shared center content
   const CenterContent = ({ barHeight, isMobile }) => (
     <>
       {game.game_time && game.status === 'upcoming' && (
@@ -145,14 +147,13 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
 
       <div className="flex items-center justify-center gap-2 mb-4">
         <TrendingUp className="w-4 h-4 text-navy" />
-        <span className={`font-bold ${isMobile ? 'text-sm text-gray-700' : 'text-sm text-gray-800'}`}>
+        <span className="text-sm font-bold text-gray-800">
           {t('dashboard.aiTitle')} · {game.data_points || '10,000+'} {t('dashboard.dataPoints')}
         </span>
       </div>
 
       <Bar h={barHeight} />
 
-      {/* Game Info + H2H (replaced streak with arena) */}
       <div className="grid grid-cols-2 gap-3 mt-5 mb-5">
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>
@@ -171,7 +172,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
         </div>
       </div>
 
-      {/* Last 5 Games */}
       {(homeL5 || awayL5) && (
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-5">
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-3`}>
@@ -184,7 +184,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
         </div>
       )}
 
-      {/* AI Insight */}
       {reasonText && (
         <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
           <p className={`text-[10px] font-bold text-blue-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-1.5`}>
@@ -194,16 +193,15 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
         </div>
       )}
 
-      {/* Community Vote */}
       <h3 className="font-bold text-gray-400 mb-3 text-[10px] text-center uppercase tracking-widest">
         {t('dashboard.communityVoteTitle')}
       </h3>
 
       {!isLoggedIn && (
-        <div className="bg-navy/5 border border-navy/10 rounded-xl p-3 mb-3 flex items-center justify-center gap-2">
+        <button onClick={handleLoginClick} className="w-full bg-navy/5 border border-navy/10 rounded-xl p-3 mb-3 flex items-center justify-center gap-2 hover:bg-navy/10 transition-colors cursor-pointer">
           <LogIn className="w-3.5 h-3.5 text-navy" />
           <span className="text-xs font-semibold text-navy">{t('dashboard.loginToVote')}</span>
-        </div>
+        </button>
       )}
 
       {userVote && (
@@ -226,7 +224,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm" onClick={onClose}>
 
-          {/* DESKTOP */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.25 }}
             className="hidden md:flex fixed inset-y-12 inset-x-16 lg:inset-y-10 lg:inset-x-24 xl:inset-y-12 xl:inset-x-32 bg-white rounded-3xl overflow-hidden shadow-2xl"
@@ -241,7 +238,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
             <SidePanel src={am} fullName={game.away_team_name} record={game.away_team_record} mascotName={game.away_team_mascot_name || an} side="away" abbr={game.away_team_abbr} streak={game.away_streak} />
           </motion.div>
 
-          {/* MOBILE */}
           <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="md:hidden fixed inset-0 bg-white overflow-y-auto"
