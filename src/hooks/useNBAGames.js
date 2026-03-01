@@ -10,16 +10,30 @@ export const useNBAGames = () => {
     setLoading(true)
     setError(null)
     try {
+      // Timeout after 10 seconds to prevent infinite loading
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 10000)
+
       const { data, error: fetchError } = await supabase
         .from('nba_games')
         .select('*')
         .eq('game_date', date)
         .order('created_at', { ascending: true })
+        .abortSignal(controller.signal)
+
+      clearTimeout(timeout)
+
       if (fetchError) throw fetchError
       setGames(data || [])
     } catch (err) {
-      setError(err.message)
+      if (err.name === 'AbortError') {
+        setError('Request timed out. Please refresh.')
+      } else {
+        setError(err.message)
+      }
+      setGames([])
     } finally {
+      // ALWAYS set loading to false — this was the bug
       setLoading(false)
     }
   }, [])
