@@ -13,24 +13,28 @@ export const AuthProvider = ({ children }) => {
   const [needsUsername, setNeedsUsername] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Guards against concurrent fetchProfile calls and re-entrant handleSession
-  const fetchingRef = useRef(false)
-  const currentUserIdRef = useRef(null)
   const profileCacheRef = useRef(null)
+  const cachedUserIdRef = useRef(null)
+  const fetchLockRef = useRef(false)
+  const mountedRef = useRef(true)
 
   const checkAdmin = (s) => s?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
 
   const fetchProfile = useCallback(async (userId) => {
-    // If we already have a cached profile for this user, use it
-    if (profileCacheRef.current && currentUserIdRef.current === userId) {
-      setProfile(profileCacheRef.current)
-      setNeedsUsername(false)
+    if (!userId) return null
+
+    // Return cache if same user
+    if (cachedUserIdRef.current === userId && profileCacheRef.current) {
+      if (mountedRef.current) {
+        setProfile(profileCacheRef.current)
+        setNeedsUsername(false)
+      }
       return profileCacheRef.current
     }
 
-    // Prevent concurrent fetches
-    if (fetchingRef.current) return profileCacheRef.current
-    fetchingRef.current = true
+    // Lock to prevent concurrent fetches
+    if (fetchLockRef.current) return profileCacheRef.current
+    fetchLockRef.current = true
 
     try {
       const { data, error } = await supabase
@@ -39,106 +43,109 @@ export const AuthProvider = ({ children }) => {
         .eq('user_id', userId)
         .single()
 
+      if (!mountedRef.current) return null
+
       if (error || !data) {
+        profileCacheRef.current = null
+        cachedUserIdRef.current = userId
         setProfile(null)
         setNeedsUsername(true)
-        profileCacheRef.current = null
         return null
       }
 
+      profileCacheRef.current = data
+      cachedUserIdRef.current = userId
       setProfile(data)
       setNeedsUsername(false)
-      profileCacheRef.current = data
-      currentUserIdRef.current = userId
       return data
     } catch {
-      // Network error — don't wipe existing profile
+      // Network failure — keep whatever we had
       return profileCacheRef.current
     } finally {
-      fetchingRef.current = false
+      fetchLockRef.current = false
     }
   }, [])
 
+  const clearAuth = useCallback(() => {
+    profileCacheRef.current = null
+    cachedUserIdRef.current = null
+    setSession(null)
+    setProfile(null)
+    setIsLoggedIn(false)
+    setIsAdmin(false)
+    setNeedsUsername(false)
+  }, [])
+
+  const applySession = useCallback(async (s) => {
+    if (!s?.user) {
+      clearAuth()
+      return
+    }
+    setSession(s)
+    setIsLoggedIn(true)
+    setIsAdmin(checkAdmin(s))
+    await fetchProfile(s.user.id)
+  }, [fetchProfile, clearAuth])
+
   useEffect(() => {
-    let mounted = true
+    mountedRef.current = true
 
-    const init = async () => {
+    // Init with timeout — if Supabase hangs, still render the app
+    const initAuth = async () => {
       try {
-        const { data: { session: s } } = await supabase.auth.getSession()
-        if (!mounted) return
-
-        if (s?.user) {
-          setSession(s)
-          setIsLoggedIn(true)
-          setIsAdmin(checkAdmin(s))
-          await fetchProfile(s.user.id)
-        } else {
-          setSession(null)
-          setIsLoggedIn(false)
-          setIsAdmin(false)
-          setProfile(null)
-          setNeedsUsername(false)
+        const result = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+        ])
+        if (mountedRef.current && result?.data?.session) {
+          await applySession(result.data.session)
         }
       } catch {
-        // Supabase init failed — leave as logged out
+        // Timeout or error — app loads as logged-out, auth will recover via onAuthStateChange
       } finally {
-        if (mounted) setLoading(false)
+        if (mountedRef.current) setLoading(false)
       }
     }
 
-    init()
+    initAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
-      if (!mounted) return
+      if (!mountedRef.current) return
 
-      // TOKEN_REFRESHED: session is the same user, just new tokens
-      // Don't re-fetch profile, just update session object
       if (event === 'TOKEN_REFRESHED') {
-        setSession(s)
+        // Just update session reference, don't touch profile
+        if (s) setSession(s)
         return
       }
 
-      // SIGNED_OUT: clear everything
       if (event === 'SIGNED_OUT' || !s) {
-        setSession(null)
-        setIsLoggedIn(false)
-        setIsAdmin(false)
-        setProfile(null)
-        setNeedsUsername(false)
-        profileCacheRef.current = null
-        currentUserIdRef.current = null
+        clearAuth()
         return
       }
 
-      // SIGNED_IN or INITIAL_SESSION: full setup
-      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-        setSession(s)
-        setIsLoggedIn(true)
-        setIsAdmin(checkAdmin(s))
-
-        if (s.user?.id) {
-          // Only fetch if it's a different user than cached
-          if (currentUserIdRef.current !== s.user.id) {
-            profileCacheRef.current = null
-          }
-          await fetchProfile(s.user.id)
-        }
-      }
+      // SIGNED_IN, INITIAL_SESSION
+      await applySession(s)
+      // In case init timed out but auth recovered
+      if (mountedRef.current) setLoading(false)
     })
 
     return () => {
-      mounted = false
+      mountedRef.current = false
       subscription.unsubscribe()
     }
-  }, [fetchProfile])
+  }, [applySession, clearAuth])
 
   const loginWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + window.location.pathname },
-    })
-    if (error) return { success: false, message: error.message }
-    return { success: true }
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname },
+      })
+      if (error) return { success: false, message: error.message }
+      return { success: true }
+    } catch (err) {
+      return { success: false, message: err.message }
+    }
   }
 
   const login = async (email, password) => {
@@ -155,16 +162,14 @@ export const AuthProvider = ({ children }) => {
         username: username.trim(),
         avatar_url: session.user.user_metadata?.avatar_url || null,
       }).select().single()
-
       if (error) {
         if (error.code === '23505') return { success: false, message: 'Username already taken' }
         return { success: false, message: error.message }
       }
-
+      profileCacheRef.current = data
+      cachedUserIdRef.current = session.user.id
       setProfile(data)
       setNeedsUsername(false)
-      profileCacheRef.current = data
-      currentUserIdRef.current = session.user.id
       return { success: true }
     } catch (err) {
       return { success: false, message: err.message }
@@ -172,21 +177,8 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = async () => {
-    // Clear state FIRST so UI updates immediately
-    profileCacheRef.current = null
-    currentUserIdRef.current = null
-    setProfile(null)
-    setNeedsUsername(false)
-    setIsAdmin(false)
-    setIsLoggedIn(false)
-    setSession(null)
-
-    // Then tell Supabase (this triggers onAuthStateChange SIGNED_OUT too, but state is already clean)
-    try {
-      await supabase.auth.signOut()
-    } catch {
-      // Even if signOut fails, local state is already cleared
-    }
+    clearAuth()
+    try { await supabase.auth.signOut() } catch { /* state already cleared */ }
   }
 
   return (

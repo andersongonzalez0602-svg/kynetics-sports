@@ -6,6 +6,7 @@ import GameDetailModal from './GameDetailModal'
 import AdminJSONPanel from './AdminJSONPanel'
 import { useNBAGames } from '@/hooks/useNBAGames'
 import { useUserPredictions } from '@/hooks/useUserPredictions'
+import { useAuth } from '@/contexts/AuthContext'
 import { getEasternDateString } from '@/lib/dateUtils'
 import { useTranslation } from 'react-i18next'
 
@@ -17,16 +18,34 @@ const NBAPage = () => {
   const { t, i18n } = useTranslation()
   const modalOpenRef = useRef(false)
 
+  const { session, isLoggedIn } = useAuth()
   const { games, loading, error, fetchGamesByDate, deleteGame } = useNBAGames()
-  const { userVotes, fetchUserVotes, castVote } = useUserPredictions()
+  const { userVotes, fetchUserVotes, castVote, setSession } = useUserPredictions()
 
-  useEffect(() => { fetchGamesByDate(currentDate) }, [currentDate, fetchGamesByDate])
-
+  // Keep prediction hook's session ref in sync — but this does NOT trigger re-renders
   useEffect(() => {
-    if (games.length > 0) fetchUserVotes(games.map(g => g.id))
-  }, [games, fetchUserVotes])
+    setSession(session)
+  }, [session, setSession])
 
-  // Derive selectedGame from games array so it auto-updates after refetch
+  // Load games when date changes — completely independent of auth
+  useEffect(() => {
+    fetchGamesByDate(currentDate)
+  }, [currentDate, fetchGamesByDate])
+
+  // Load user votes when games load AND user is logged in
+  // Use a separate effect so game loading doesn't wait for auth
+  const gamesLoadedRef = useRef(false)
+  useEffect(() => {
+    if (games.length > 0 && isLoggedIn && session?.user?.id) {
+      fetchUserVotes(games.map(g => g.id))
+      gamesLoadedRef.current = true
+    } else if (games.length > 0 && !isLoggedIn) {
+      // Games loaded but not logged in — that's fine, just show games
+      gamesLoadedRef.current = true
+    }
+  }, [games.length, isLoggedIn, session?.user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Derive selectedGame from games so it updates after vote refresh
   const selectedGame = useMemo(() => {
     if (!selectedGameId) return null
     return games.find(g => g.id === selectedGameId) || null
@@ -61,7 +80,6 @@ const NBAPage = () => {
   const handleVote = async (gameId, team) => {
     const result = await castVote(gameId, team)
     if (result.success) {
-      // Refetch games so community counts update in the modal
       await fetchGamesByDate(currentDate)
     }
     return result

@@ -1,40 +1,38 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
 export const useNBAGames = () => {
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const fetchIdRef = useRef(0)
 
   const fetchGamesByDate = useCallback(async (date) => {
+    const thisId = ++fetchIdRef.current
     setLoading(true)
     setError(null)
-    try {
-      // Timeout after 10 seconds to prevent infinite loading
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 10000)
 
+    try {
       const { data, error: fetchError } = await supabase
         .from('nba_games')
         .select('*')
         .eq('game_date', date)
         .order('created_at', { ascending: true })
-        .abortSignal(controller.signal)
 
-      clearTimeout(timeout)
+      // Stale request — a newer one already fired
+      if (thisId !== fetchIdRef.current) return
 
       if (fetchError) throw fetchError
       setGames(data || [])
     } catch (err) {
-      if (err.name === 'AbortError') {
-        setError('Request timed out. Please refresh.')
-      } else {
+      if (thisId === fetchIdRef.current) {
         setError(err.message)
+        setGames([])
       }
-      setGames([])
     } finally {
-      // ALWAYS set loading to false — this was the bug
-      setLoading(false)
+      if (thisId === fetchIdRef.current) {
+        setLoading(false)
+      }
     }
   }, [])
 
@@ -81,14 +79,9 @@ export const useNBAGames = () => {
       const field = team === 'home' ? 'community_votes_home' : 'community_votes_away'
       const game = games.find(g => g.id === gameId)
       if (!game) throw new Error('Game not found')
-
       const newVal = (game[field] || 0) + 1
-      const { error } = await supabase
-        .from('nba_games')
-        .update({ [field]: newVal })
-        .eq('id', gameId)
+      const { error } = await supabase.from('nba_games').update({ [field]: newVal }).eq('id', gameId)
       if (error) throw error
-
       setGames(prev => prev.map(g => g.id === gameId ? { ...g, [field]: newVal } : g))
       return { success: true }
     } catch (err) {
@@ -96,10 +89,5 @@ export const useNBAGames = () => {
     }
   }
 
-  return {
-    games, loading, error,
-    fetchGamesByDate, insertGames,
-    deleteGamesByDate, deleteGame,
-    voteForTeam
-  }
+  return { games, loading, error, fetchGamesByDate, insertGames, deleteGamesByDate, deleteGame, voteForTeam }
 }
