@@ -21,10 +21,11 @@ export const AuthProvider = ({ children }) => {
   const checkAdmin = (s) => s?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
 
   const fetchProfile = useCallback(async (userId) => {
-    if (!userId) return null
+    if (!userId) { console.log('[AUTH] fetchProfile: no userId'); return null }
 
     // Return cache if same user
     if (cachedUserIdRef.current === userId && profileCacheRef.current) {
+      console.log('[AUTH] fetchProfile: returning cache for', userId, profileCacheRef.current.username)
       if (mountedRef.current) {
         setProfile(profileCacheRef.current)
         setNeedsUsername(false)
@@ -32,9 +33,12 @@ export const AuthProvider = ({ children }) => {
       return profileCacheRef.current
     }
 
-    // Lock to prevent concurrent fetches
-    if (fetchLockRef.current) return profileCacheRef.current
+    if (fetchLockRef.current) {
+      console.log('[AUTH] fetchProfile: locked, returning cache')
+      return profileCacheRef.current
+    }
     fetchLockRef.current = true
+    console.log('[AUTH] fetchProfile: fetching for userId', userId)
 
     try {
       const { data, error } = await supabase
@@ -45,7 +49,8 @@ export const AuthProvider = ({ children }) => {
 
       if (!mountedRef.current) return null
 
-      if (error || !data) {
+      if (error) {
+        console.log('[AUTH] fetchProfile: ERROR', error.code, error.message)
         profileCacheRef.current = null
         cachedUserIdRef.current = userId
         setProfile(null)
@@ -53,13 +58,23 @@ export const AuthProvider = ({ children }) => {
         return null
       }
 
+      if (!data) {
+        console.log('[AUTH] fetchProfile: no data returned')
+        profileCacheRef.current = null
+        cachedUserIdRef.current = userId
+        setProfile(null)
+        setNeedsUsername(true)
+        return null
+      }
+
+      console.log('[AUTH] fetchProfile: SUCCESS', data.username)
       profileCacheRef.current = data
       cachedUserIdRef.current = userId
       setProfile(data)
       setNeedsUsername(false)
       return data
-    } catch {
-      // Network failure — keep whatever we had
+    } catch (err) {
+      console.log('[AUTH] fetchProfile: CATCH error', err.message)
       return profileCacheRef.current
     } finally {
       fetchLockRef.current = false
@@ -67,6 +82,7 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const clearAuth = useCallback(() => {
+    console.log('[AUTH] clearAuth called')
     profileCacheRef.current = null
     cachedUserIdRef.current = null
     setSession(null)
@@ -78,9 +94,11 @@ export const AuthProvider = ({ children }) => {
 
   const applySession = useCallback(async (s) => {
     if (!s?.user) {
+      console.log('[AUTH] applySession: no user in session')
       clearAuth()
       return
     }
+    console.log('[AUTH] applySession: user', s.user.email, 'id', s.user.id)
     setSession(s)
     setIsLoggedIn(true)
     setIsAdmin(checkAdmin(s))
@@ -89,21 +107,28 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     mountedRef.current = true
+    console.log('[AUTH] init starting...')
 
-    // Init with timeout — if Supabase hangs, still render the app
     const initAuth = async () => {
       try {
-        const result = await Promise.race([
-          supabase.auth.getSession(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-        ])
-        if (mountedRef.current && result?.data?.session) {
-          await applySession(result.data.session)
+        const { data, error } = await supabase.auth.getSession()
+        console.log('[AUTH] getSession result:', error ? 'ERROR: ' + error.message : data?.session ? 'has session' : 'no session')
+
+        if (!mountedRef.current) return
+
+        if (data?.session) {
+          await applySession(data.session)
+        } else {
+          clearAuth()
         }
-      } catch {
-        // Timeout or error — app loads as logged-out, auth will recover via onAuthStateChange
+      } catch (err) {
+        console.log('[AUTH] getSession CATCH:', err.message)
+        if (mountedRef.current) clearAuth()
       } finally {
-        if (mountedRef.current) setLoading(false)
+        if (mountedRef.current) {
+          console.log('[AUTH] init complete, setting loading=false')
+          setLoading(false)
+        }
       }
     }
 
@@ -111,21 +136,21 @@ export const AuthProvider = ({ children }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
       if (!mountedRef.current) return
+      console.log('[AUTH] onAuthStateChange:', event, s?.user?.email || 'no user')
 
       if (event === 'TOKEN_REFRESHED') {
-        // Just update session reference, don't touch profile
         if (s) setSession(s)
         return
       }
 
       if (event === 'SIGNED_OUT' || !s) {
         clearAuth()
+        setLoading(false)
         return
       }
 
       // SIGNED_IN, INITIAL_SESSION
       await applySession(s)
-      // In case init timed out but auth recovered
       if (mountedRef.current) setLoading(false)
     })
 
@@ -166,6 +191,7 @@ export const AuthProvider = ({ children }) => {
         if (error.code === '23505') return { success: false, message: 'Username already taken' }
         return { success: false, message: error.message }
       }
+      console.log('[AUTH] createProfile: SUCCESS', data.username)
       profileCacheRef.current = data
       cachedUserIdRef.current = session.user.id
       setProfile(data)
@@ -177,7 +203,9 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = async () => {
+    console.log('[AUTH] logout called')
     clearAuth()
+    setLoading(false)
     try { await supabase.auth.signOut() } catch { /* state already cleared */ }
   }
 
