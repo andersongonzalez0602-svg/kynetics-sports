@@ -26,13 +26,26 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   const an = game.away_team_name?.split(' ').pop() || game.away_team_abbr
   const reasonText = i18n.language === 'es' && game.reason_text_es ? game.reason_text_es : game.reason_text
 
-  // Convert UTC game_time to user's local timezone
+  // Convert game_time to user's local timezone
   const getLocalTime = (timeStr) => {
-    if (!timeStr) return 'TBD'
+    if (!timeStr || timeStr === 'TBD') return null
     try {
-      const d = new Date(timeStr)
-      if (!isNaN(d.getTime()) && timeStr.includes('T')) {
-        return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      if (timeStr.includes('T')) {
+        const d = new Date(timeStr)
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        }
+      }
+      const estMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*EST/i)
+      if (estMatch) {
+        let hours = parseInt(estMatch[1])
+        const mins = parseInt(estMatch[2])
+        const ampm = estMatch[3].toUpperCase()
+        if (ampm === 'PM' && hours !== 12) hours += 12
+        if (ampm === 'AM' && hours === 12) hours = 0
+        const now = new Date()
+        const estDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), hours + 5, mins))
+        return estDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
       }
     } catch {}
     return timeStr
@@ -172,7 +185,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>
             {t('dashboard.gameInfo')}
           </p>
-          <p className="font-bold text-sm text-gray-700">{localGameTime}</p>
+          <p className="font-bold text-sm text-gray-700">{localGameTime || 'TBD'}</p>
           <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
             <MapPin className="w-3 h-3" /> {game.home_team_name?.split(' ').slice(0, -1).join(' ') || game.home_team_abbr}
           </p>

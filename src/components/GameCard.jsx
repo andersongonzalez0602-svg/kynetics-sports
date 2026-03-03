@@ -17,17 +17,32 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
   const hn = game.home_team_name?.split(' ').pop() || game.home_team_abbr
   const an = game.away_team_name?.split(' ').pop() || game.away_team_abbr
 
-  // Convert UTC game_time to user's local timezone
+  // Convert game_time to user's local timezone
   const getLocalTime = (timeStr) => {
-    if (!timeStr) return 'TBD'
-    // If it's already a display string like "7:00 PM EST", try to parse UTC ISO first
+    if (!timeStr || timeStr === 'TBD') return null
     try {
-      const d = new Date(timeStr)
-      if (!isNaN(d.getTime()) && timeStr.includes('T')) {
-        return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      // UTC ISO format: "2026-03-04T00:00Z" → convert to local
+      if (timeStr.includes('T')) {
+        const d = new Date(timeStr)
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        }
+      }
+      // EST format: "8:30 PM EST" → parse and convert to local
+      const estMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*EST/i)
+      if (estMatch) {
+        let hours = parseInt(estMatch[1])
+        const mins = parseInt(estMatch[2])
+        const ampm = estMatch[3].toUpperCase()
+        if (ampm === 'PM' && hours !== 12) hours += 12
+        if (ampm === 'AM' && hours === 12) hours = 0
+        // Create date in EST (UTC-5) then let browser convert to local
+        const now = new Date()
+        const estDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), hours + 5, mins))
+        return estDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
       }
     } catch {}
-    return timeStr // fallback to original string
+    return timeStr
   }
   const localGameTime = getLocalTime(game.game_time)
 
@@ -88,7 +103,7 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
               t('dashboard.final')
             ) : (
               <>
-                <Clock className="w-2.5 h-2.5" /> {localGameTime}
+                <Clock className="w-2.5 h-2.5" /> {localGameTime || 'TBD'}
               </>
             )}
           </div>

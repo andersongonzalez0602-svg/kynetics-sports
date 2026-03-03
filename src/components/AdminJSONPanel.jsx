@@ -23,16 +23,16 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
       const parsed = JSON.parse(jsonInput)
       if (!parsed.game_date || !parsed.games || !Array.isArray(parsed.games)) throw new Error('Need "game_date" and "games" array.')
       const rows = parsed.games.map(g => ({
-        game_date: parsed.game_date, game_time: g.game_time||'TBD', status: g.status||'upcoming',
-        is_value_pick: g.is_value_pick||false, is_featured: g.is_featured||false,
+        game_date: parsed.game_date, game_time: g.game_time||g.meta?.game_time||'TBD', status: g.status||'upcoming',
+        is_value_pick: g.is_value_pick||g.meta?.is_value_pick||false, is_featured: g.is_featured||g.meta?.is_featured||false,
         home_team_name: g.home?.name||'', home_team_abbr: g.home?.abbr||'', home_team_record: g.home?.record||'',
         home_team_color: g.home?.color||'#1D428A', home_team_mascot_name: g.home?.mascot_name||'',
         away_team_name: g.away?.name||'', away_team_abbr: g.away?.abbr||'', away_team_record: g.away?.record||'',
         away_team_color: g.away?.color||'#333333', away_team_mascot_name: g.away?.mascot_name||'',
         home_win_pct: g.prediction?.home_win_pct||50, away_win_pct: g.prediction?.away_win_pct||50,
-        data_points: g.prediction?.data_points||0, home_streak: g.home?.streak||'', away_streak: g.away?.streak||'',
+        data_points: g.prediction?.data_points||g.meta?.data_points||0, home_streak: g.home?.streak||'', away_streak: g.away?.streak||'',
         home_last5: g.home?.last5||'', away_last5: g.away?.last5||'',
-        head_to_head: g.prediction?.head_to_head||'', reason_text: g.prediction?.reason||'',
+        head_to_head: g.prediction?.head_to_head||g.meta?.head_to_head||'', reason_text: g.prediction?.reason||'',
         reason_text_es: g.prediction?.reason_es||'',
         community_votes_home: 0, community_votes_away: 0,
       }))
