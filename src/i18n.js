@@ -81,6 +81,23 @@ const resources = {
           },
         ],
       },
+      features: {
+        title: 'Key Features',
+        items: [
+          {
+            title: 'Predictive Analysis',
+            desc: 'Algorithms that process millions of historical data points to project outcomes with high accuracy.',
+          },
+          {
+            title: 'Streaks & Momentum',
+            desc: 'Identify game patterns and team momentum before the game even starts.',
+          },
+          {
+            title: 'Collective Intelligence',
+            desc: 'Compare AI predictions with the global sentiment of thousands of users.',
+          },
+        ],
+      },
       cta: {
         title: 'Real-Time Data Analysis',
         body: 'Get instant insights into every NBA matchup',
@@ -271,6 +288,23 @@ const resources = {
           {
             title: 'Compara métricas',
             desc: 'Visualiza rachas, historial y sentimiento de la comunidad en tiempo real.',
+          },
+        ],
+      },
+      features: {
+        title: 'Características Clave',
+        items: [
+          {
+            title: 'Análisis Predictivo',
+            desc: 'Algoritmos que procesan millones de datos históricos para proyectar resultados con alta precisión.',
+          },
+          {
+            title: 'Rachas e Impulso',
+            desc: 'Identifica patrones de juego y el impulso de cada equipo antes de que empiece el partido.',
+          },
+          {
+            title: 'Inteligencia Colectiva',
+            desc: 'Compara las predicciones de IA con el sentimiento global de miles de usuarios.',
           },
         ],
       },

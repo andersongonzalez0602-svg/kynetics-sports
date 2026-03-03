@@ -17,6 +17,20 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
   const hn = game.home_team_name?.split(' ').pop() || game.home_team_abbr
   const an = game.away_team_name?.split(' ').pop() || game.away_team_abbr
 
+  // Convert UTC game_time to user's local timezone
+  const getLocalTime = (timeStr) => {
+    if (!timeStr) return 'TBD'
+    // If it's already a display string like "7:00 PM EST", try to parse UTC ISO first
+    try {
+      const d = new Date(timeStr)
+      if (!isNaN(d.getTime()) && timeStr.includes('T')) {
+        return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      }
+    } catch {}
+    return timeStr // fallback to original string
+  }
+  const localGameTime = getLocalTime(game.game_time)
+
   const handleDelete = (e) => {
     e.stopPropagation()
     if (window.confirm(`Delete ${game.home_team_name} vs ${game.away_team_name}?`)) onDelete?.(game.id)
@@ -74,7 +88,7 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
               t('dashboard.final')
             ) : (
               <>
-                <Clock className="w-2.5 h-2.5" /> {game.game_time || 'TBD'}
+                <Clock className="w-2.5 h-2.5" /> {localGameTime}
               </>
             )}
           </div>
@@ -93,16 +107,16 @@ const GameCard = ({ game, onOpenDetail, onDelete }) => {
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
           {t('dashboard.aiPredictionLabel')}
         </p>
-        <div className="h-10 sm:h-11 rounded-xl overflow-hidden flex">
+        <div className="h-10 sm:h-11 rounded-xl overflow-hidden flex" style={{ gap: '2px', backgroundColor: '#fff' }}>
           <motion.div initial={{ width: 0 }} animate={{ width: `${hp}%` }} transition={{ duration: 1, ease: 'easeOut' }}
             className="flex items-center pl-3 rounded-l-xl"
             style={{ backgroundColor: hc }}>
-            <span className="text-white text-sm sm:text-base font-black">{hp}%</span>
+            <span className="text-white text-sm sm:text-base font-black drop-shadow-sm">{hp}%</span>
           </motion.div>
           <motion.div initial={{ width: 0 }} animate={{ width: `${ap}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.15 }}
             className="flex items-center justify-end pr-3 rounded-r-xl"
             style={{ backgroundColor: ac }}>
-            <span className="text-white text-sm sm:text-base font-black">{ap}%</span>
+            <span className="text-white text-sm sm:text-base font-black drop-shadow-sm">{ap}%</span>
           </motion.div>
         </div>
         <div className="flex justify-between mt-1.5">

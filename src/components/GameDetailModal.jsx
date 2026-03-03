@@ -26,6 +26,19 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   const an = game.away_team_name?.split(' ').pop() || game.away_team_abbr
   const reasonText = i18n.language === 'es' && game.reason_text_es ? game.reason_text_es : game.reason_text
 
+  // Convert UTC game_time to user's local timezone
+  const getLocalTime = (timeStr) => {
+    if (!timeStr) return 'TBD'
+    try {
+      const d = new Date(timeStr)
+      if (!isNaN(d.getTime()) && timeStr.includes('T')) {
+        return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      }
+    } catch {}
+    return timeStr
+  }
+  const localGameTime = getLocalTime(game.game_time)
+
   const fmtPct = (v) => `${v}%`
 
   const handleVote = async (team) => {
@@ -76,12 +89,12 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   }
 
   const Bar = ({ h = 'h-12' }) => (
-    <div className={`${h} rounded-2xl overflow-hidden flex`}>
+    <div className={`${h} rounded-2xl overflow-hidden flex`} style={{ gap: '2px', backgroundColor: '#fff' }}>
       <div className="flex items-center pl-4 rounded-l-2xl" style={{ width: `${hp}%`, backgroundColor: hc }}>
-        <span className="text-white text-lg font-black">{fmtPct(hp)}</span>
+        <span className="text-white text-lg font-black drop-shadow-sm">{fmtPct(hp)}</span>
       </div>
       <div className="flex items-center justify-end pr-4 rounded-r-2xl" style={{ width: `${ap}%`, backgroundColor: ac }}>
-        <span className="text-white text-lg font-black">{fmtPct(ap)}</span>
+        <span className="text-white text-lg font-black drop-shadow-sm">{fmtPct(ap)}</span>
       </div>
     </div>
   )
@@ -104,7 +117,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
 
   const CommunityBar = () => (
     <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-      <div className="h-3.5 rounded-full overflow-hidden flex bg-gray-200 mb-2">
+      <div className="h-3.5 rounded-full overflow-hidden flex bg-gray-200 mb-2" style={{ gap: '2px' }}>
         <div className="rounded-l-full transition-all duration-500" style={{ width: `${hvp}%`, backgroundColor: hc }} />
         <div className="rounded-r-full transition-all duration-500" style={{ width: `${avp}%`, backgroundColor: ac }} />
       </div>
@@ -135,7 +148,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   const CenterContent = ({ barHeight, isMobile }) => (
     <>
       {game.game_time && game.status === 'upcoming' && (
-        <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>
+        <p className="text-center text-gray-400 text-sm font-semibold mb-3">{localGameTime}</p>
       )}
       {game.status && game.status !== 'upcoming' && (
         <div className="flex justify-center mb-3">
@@ -159,7 +172,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>
             {t('dashboard.gameInfo')}
           </p>
-          <p className="font-bold text-sm text-gray-700">{game.game_time || 'TBD'}</p>
+          <p className="font-bold text-sm text-gray-700">{localGameTime}</p>
           <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
             <MapPin className="w-3 h-3" /> {game.home_team_name?.split(' ').slice(0, -1).join(' ') || game.home_team_abbr}
           </p>
