@@ -173,7 +173,7 @@ const NBAPage = () => {
             <AnimatePresence mode="popLayout">
               {filtered.map((game, i) => (
                 <motion.div key={game.id} layout initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, scale:0.95 }} transition={{ duration:0.3, delay:i*0.05 }}>
-                  <GameCard game={game} onOpenDetail={openModal} onDelete={async id => { const r = await deleteGame(id); if(!r.success) alert(r.error) }} />
+                  <GameCard game={game} onOpenDetail={openModal} onDelete={async id => { const r = await deleteGame(id); if(!r.success) alert(r.error) }} isLocked={i > 0} />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -194,6 +194,7 @@ const NBAPage = () => {
         onClose={closeModalViaButton}
         onVote={handleVote}
         userVote={selectedGameId ? userVotes[selectedGameId] : null}
+        isLocked={selectedGame ? filtered.indexOf(selectedGame) > 0 : false}
       />
       <AdminJSONPanel onGamesUpdated={() => fetchGamesByDate(currentDate)} currentDate={currentDate} />
     </div>

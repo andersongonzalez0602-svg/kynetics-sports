@@ -81,23 +81,6 @@ const resources = {
           },
         ],
       },
-      features: {
-        title: 'Key Features',
-        items: [
-          {
-            title: 'Predictive Analysis',
-            desc: 'Algorithms that process millions of historical data points to project outcomes with high accuracy.',
-          },
-          {
-            title: 'Streaks & Momentum',
-            desc: 'Identify game patterns and team momentum before the game even starts.',
-          },
-          {
-            title: 'Collective Intelligence',
-            desc: 'Compare AI predictions with the global sentiment of thousands of users.',
-          },
-        ],
-      },
       cta: {
         title: 'Real-Time Data Analysis',
         body: 'Get instant insights into every NBA matchup',
@@ -186,6 +169,9 @@ const resources = {
         last5: 'Last 5 Games',
         streakShort: 'Streak',
         h2hShort: 'H2H',
+        signInToSee: 'Sign in to see predictions',
+        signInInsight: 'Sign in to unlock AI Insight',
+        signInInsightSub: 'Get expert analysis for every game',
       },
       footer: {
         platform: 'Platform',
@@ -291,23 +277,6 @@ const resources = {
           },
         ],
       },
-      features: {
-        title: 'Características Clave',
-        items: [
-          {
-            title: 'Análisis Predictivo',
-            desc: 'Algoritmos que procesan millones de datos históricos para proyectar resultados con alta precisión.',
-          },
-          {
-            title: 'Rachas e Impulso',
-            desc: 'Identifica patrones de juego y el impulso de cada equipo antes de que empiece el partido.',
-          },
-          {
-            title: 'Inteligencia Colectiva',
-            desc: 'Compara las predicciones de IA con el sentimiento global de miles de usuarios.',
-          },
-        ],
-      },
       cta: {
         title: 'Análisis en tiempo real',
         body: 'Obtén insights instantáneos de cada enfrentamiento de la NBA',
@@ -396,6 +365,9 @@ const resources = {
         last5: 'Últimos 5 juegos',
         streakShort: 'Racha',
         h2hShort: 'H2H',
+        signInToSee: 'Inicia sesión para ver predicciones',
+        signInInsight: 'Inicia sesión para desbloquear IA',
+        signInInsightSub: 'Obtén análisis experto de cada partido',
       },
       footer: {
         platform: 'Plataforma',

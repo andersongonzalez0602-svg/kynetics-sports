@@ -1,17 +1,19 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, TrendingUp, Users, Loader2, MapPin, LogIn } from 'lucide-react'
+import { X, TrendingUp, Users, Loader2, MapPin, LogIn, Lock } from 'lucide-react'
 import { getMascotUrl } from '@/lib/mascots'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import Navigation from './Navigation'
 
-const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
+const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote, isLocked }) => {
   const [voting, setVoting] = useState(false)
   const { t, i18n } = useTranslation()
   const { isLoggedIn } = useAuth()
 
   if (!game) return null
+
+  const showBlur = isLocked && !isLoggedIn
 
   const hc = game.home_team_color || '#1D428A'
   const ac = game.away_team_color || '#333333'
@@ -25,32 +27,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   const hn = game.home_team_name?.split(' ').pop() || game.home_team_abbr
   const an = game.away_team_name?.split(' ').pop() || game.away_team_abbr
   const reasonText = i18n.language === 'es' && game.reason_text_es ? game.reason_text_es : game.reason_text
-
-  // Convert game_time to user's local timezone
-  const getLocalTime = (timeStr) => {
-    if (!timeStr || timeStr === 'TBD') return null
-    try {
-      if (timeStr.includes('T')) {
-        const d = new Date(timeStr)
-        if (!isNaN(d.getTime())) {
-          return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-        }
-      }
-      const estMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*EST/i)
-      if (estMatch) {
-        let hours = parseInt(estMatch[1])
-        const mins = parseInt(estMatch[2])
-        const ampm = estMatch[3].toUpperCase()
-        if (ampm === 'PM' && hours !== 12) hours += 12
-        if (ampm === 'AM' && hours === 12) hours = 0
-        const now = new Date()
-        const estDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), hours + 5, mins))
-        return estDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-      }
-    } catch {}
-    return timeStr
-  }
-  const localGameTime = getLocalTime(game.game_time)
 
   const fmtPct = (v) => `${v}%`
 
@@ -101,16 +77,39 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
     )
   }
 
-  const Bar = ({ h = 'h-12' }) => (
-    <div className={`${h} rounded-2xl overflow-hidden flex`} style={{ gap: '2px', backgroundColor: '#fff' }}>
-      <div className="flex items-center pl-4 rounded-l-2xl" style={{ width: `${hp}%`, backgroundColor: hc }}>
-        <span className="text-white text-lg font-black drop-shadow-sm">{fmtPct(hp)}</span>
+  const Bar = ({ h = 'h-12' }) => {
+    if (showBlur) {
+      return (
+        <div className="relative">
+          <div className={`${h} rounded-2xl overflow-hidden flex filter blur-[8px]`}>
+            <div className="flex items-center pl-4 rounded-l-2xl" style={{ width: '50%', backgroundColor: '#94a3b8' }}>
+              <span className="text-white text-lg font-black">??%</span>
+            </div>
+            <div className="flex items-center justify-end pr-4 rounded-r-2xl" style={{ width: '50%', backgroundColor: '#94a3b8' }}>
+              <span className="text-white text-lg font-black">??%</span>
+            </div>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button onClick={handleLoginClick} className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-lg border border-gray-200 hover:bg-navy hover:text-white hover:border-navy transition-all group/lock">
+              <Lock className="w-4 h-4 text-gray-400 group-hover/lock:text-white" />
+              <span className="text-sm font-bold text-gray-600 group-hover/lock:text-white">{t('dashboard.signInToSee')}</span>
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className={`${h} rounded-2xl overflow-hidden flex`}>
+        <div className="flex items-center pl-4 rounded-l-2xl" style={{ width: `${hp}%`, backgroundColor: hc }}>
+          <span className="text-white text-lg font-black">{fmtPct(hp)}</span>
+        </div>
+        <div className="flex items-center justify-end pr-4 rounded-r-2xl" style={{ width: `${ap}%`, backgroundColor: ac }}>
+          <span className="text-white text-lg font-black">{fmtPct(ap)}</span>
+        </div>
       </div>
-      <div className="flex items-center justify-end pr-4 rounded-r-2xl" style={{ width: `${ap}%`, backgroundColor: ac }}>
-        <span className="text-white text-lg font-black drop-shadow-sm">{fmtPct(ap)}</span>
-      </div>
-    </div>
-  )
+    )
+  }
 
   const VoteBtn = ({ team, name, color }) => {
     const isThisVote = userVote === team
@@ -130,7 +129,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
 
   const CommunityBar = () => (
     <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-      <div className="h-3.5 rounded-full overflow-hidden flex bg-gray-200 mb-2" style={{ gap: '2px' }}>
+      <div className="h-3.5 rounded-full overflow-hidden flex bg-gray-200 mb-2">
         <div className="rounded-l-full transition-all duration-500" style={{ width: `${hvp}%`, backgroundColor: hc }} />
         <div className="rounded-r-full transition-all duration-500" style={{ width: `${avp}%`, backgroundColor: ac }} />
       </div>
@@ -141,6 +140,41 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
       </div>
     </div>
   )
+
+  const InsightSection = ({ isMobile }) => {
+    if (!reasonText) return null
+
+    if (showBlur) {
+      return (
+        <div className="relative mb-5">
+          <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 filter blur-[6px] select-none">
+            <p className={`text-[10px] font-bold text-blue-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-1.5`}>
+              <TrendingUp className="w-3 h-3 inline mr-1" /> {t('dashboard.aiInsight')}
+            </p>
+            <p className="text-sm text-blue-900 leading-relaxed">{reasonText}</p>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button onClick={handleLoginClick} className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-5 py-3 rounded-xl shadow-lg border border-gray-200 hover:bg-navy hover:text-white hover:border-navy transition-all group/lock">
+              <Lock className="w-4 h-4 text-gray-400 group-hover/lock:text-white" />
+              <div className="text-left">
+                <p className="text-sm font-bold text-gray-700 group-hover/lock:text-white">{t('dashboard.signInInsight')}</p>
+                <p className="text-[10px] text-gray-400 group-hover/lock:text-white/70">{t('dashboard.signInInsightSub')}</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
+        <p className={`text-[10px] font-bold text-blue-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-1.5`}>
+          <TrendingUp className="w-3 h-3 inline mr-1" /> {t('dashboard.aiInsight')}
+        </p>
+        <p className="text-sm text-blue-900 leading-relaxed">{reasonText}</p>
+      </div>
+    )
+  }
 
   const SidePanel = ({ src, fullName, record, mascotName, side, abbr, streak }) => (
     <div className="w-[22%] flex flex-col relative overflow-hidden">
@@ -161,7 +195,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
   const CenterContent = ({ barHeight, isMobile }) => (
     <>
       {game.game_time && game.status === 'upcoming' && (
-        <p className="text-center text-gray-400 text-sm font-semibold mb-3">{localGameTime}</p>
+        <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>
       )}
       {game.status && game.status !== 'upcoming' && (
         <div className="flex justify-center mb-3">
@@ -185,7 +219,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>
             {t('dashboard.gameInfo')}
           </p>
-          <p className="font-bold text-sm text-gray-700">{localGameTime || 'TBD'}</p>
+          <p className="font-bold text-sm text-gray-700">{game.game_time || 'TBD'}</p>
           <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
             <MapPin className="w-3 h-3" /> {game.home_team_name?.split(' ').slice(0, -1).join(' ') || game.home_team_abbr}
           </p>
@@ -210,14 +244,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote }) => {
         </div>
       )}
 
-      {reasonText && (
-        <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 mb-5">
-          <p className={`text-[10px] font-bold text-blue-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-1.5`}>
-            <TrendingUp className="w-3 h-3 inline mr-1" /> {t('dashboard.aiInsight')}
-          </p>
-          <p className="text-sm text-blue-900 leading-relaxed">{reasonText}</p>
-        </div>
-      )}
+      <InsightSection isMobile={isMobile} />
 
       <h3 className="font-bold text-gray-400 mb-3 text-[10px] text-center uppercase tracking-widest">
         {t('dashboard.communityVoteTitle')}
