@@ -172,6 +172,7 @@ const resources = {
         signInToSee: 'Sign in to see predictions',
         signInInsight: 'Sign in to unlock AI Insight',
         signInInsightSub: 'Get expert analysis for every game',
+        featured: 'FEATURED',
       },
       footer: {
         platform: 'Platform',
@@ -368,6 +369,7 @@ const resources = {
         signInToSee: 'Inicia sesión para ver predicciones',
         signInInsight: 'Inicia sesión para desbloquear IA',
         signInInsightSub: 'Obtén análisis experto de cada partido',
+        featured: 'DESTACADO',
       },
       footer: {
         platform: 'Plataforma',

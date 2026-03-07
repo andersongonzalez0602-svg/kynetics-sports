@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Clock, TrendingUp, Trash2, Lock } from 'lucide-react'
+import { TrendingUp, Trash2, Lock } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getMascotUrl } from '@/lib/mascots'
 import { useTranslation } from 'react-i18next'
@@ -65,21 +65,10 @@ const GameCard = ({ game, onOpenDetail, onDelete, isLocked }) => {
             <span className="text-[9px] font-black text-gray-400">{t('dashboard.vs')}</span>
           </div>
         </div>
-        <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1.5">
-          <div className="flex items-center gap-1 bg-black/30 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-bold">
-            {game.status === 'live' ? (
-              <><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> {t('dashboard.live')}</>
-            ) : game.status === 'final' ? (
-              t('dashboard.final')
-            ) : (
-              <><Clock className="w-2.5 h-2.5" /> {game.game_time || 'TBD'}</>
-            )}
-          </div>
-        </div>
-        {game.is_value_pick && (
-          <div className="absolute top-2.5 right-2.5 z-20">
-            <div className="flex items-center gap-1 bg-emerald-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm">
-              <TrendingUp className="w-2.5 h-2.5" /> {t('dashboard.value')}
+        {game.is_featured && (
+          <div className="absolute top-2.5 left-2.5 z-20">
+            <div className="flex items-center gap-1 bg-black/30 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-bold">
+              <TrendingUp className="w-2.5 h-2.5" /> {t('dashboard.featured')}
             </div>
           </div>
         )}

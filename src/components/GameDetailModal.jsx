@@ -194,17 +194,6 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote, isLocked }) 
 
   const CenterContent = ({ barHeight, isMobile }) => (
     <>
-      {game.game_time && game.status === 'upcoming' && (
-        <p className="text-center text-gray-400 text-sm font-semibold mb-3">{game.game_time}</p>
-      )}
-      {game.status && game.status !== 'upcoming' && (
-        <div className="flex justify-center mb-3">
-          <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${game.status === 'live' ? 'bg-red text-white animate-pulse' : 'bg-gray-200 text-gray-600'}`}>
-            {game.status === 'live' ? t('dashboard.live') : t('dashboard.final')}
-          </span>
-        </div>
-      )}
-
       <div className="flex items-center justify-center gap-2 mb-4">
         <TrendingUp className="w-4 h-4 text-navy" />
         <span className="text-sm font-bold text-gray-800">
@@ -219,8 +208,7 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote, isLocked }) 
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>
             {t('dashboard.gameInfo')}
           </p>
-          <p className="font-bold text-sm text-gray-700">{game.game_time || 'TBD'}</p>
-          <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+          <p className="text-xs text-gray-500 flex items-center gap-1">
             <MapPin className="w-3 h-3" /> {game.home_team_name?.split(' ').slice(0, -1).join(' ') || game.home_team_abbr}
           </p>
         </div>

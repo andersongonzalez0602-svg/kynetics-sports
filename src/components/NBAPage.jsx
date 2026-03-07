@@ -87,14 +87,12 @@ const NBAPage = () => {
 
   const filteredGames = () => {
     if (activeTab === 'All') return games
-    if (activeTab === 'Live') return games.filter(g => g.status === 'live')
-    if (activeTab === 'Upcoming') return games.filter(g => g.status === 'upcoming')
     if (activeTab === 'Featured') return games.filter(g => g.is_featured)
     return games
   }
 
   const filtered = filteredGames()
-  const tabs = ['All', 'Live', 'Upcoming', 'Featured']
+  const tabs = ['All', 'Featured']
 
   const shiftDate = (days) => {
     const d = new Date(currentDate + 'T12:00:00')
@@ -149,13 +147,12 @@ const NBAPage = () => {
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             <Filter className="w-4 h-4 text-gray-300 mr-1 shrink-0" />
             {tabs.map(tab => {
-              const count = tab==='Live' ? games.filter(g=>g.status==='live').length : tab==='Featured' ? games.filter(g=>g.is_featured).length : tab==='Upcoming' ? games.filter(g=>g.status==='upcoming').length : games.length
+              const count = tab==='Featured' ? games.filter(g=>g.is_featured).length : games.length
               return (
                 <button key={tab} onClick={() => setActiveTab(tab)}
                   className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab===tab ? 'bg-navy text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
                   {t(`nba.tabs.${tab.toLowerCase()}`)}
-                  {tab==='Live' && count>0 && <span className="ml-1.5 w-1.5 h-1.5 bg-red rounded-full inline-block animate-pulse" />}
-                  {tab!=='All' && count>0 && <span className={`ml-1.5 text-xs ${activeTab===tab ? 'text-white/60' : 'text-gray-300'}`}>{count}</span>}
+                  {tab==='Featured' && count>0 && <span className={`ml-1.5 text-xs ${activeTab===tab ? 'text-white/60' : 'text-gray-300'}`}>{count}</span>}
                 </button>
               )
             })}
