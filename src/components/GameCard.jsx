@@ -101,16 +101,16 @@ const GameCard = ({ game, onOpenDetail, onDelete, isLocked }) => {
           </div>
         ) : (
           /* NORMAL STATE — real percentages */
-          <div className="h-10 sm:h-11 rounded-xl overflow-hidden flex">
+          <div className="h-10 sm:h-11 rounded-xl overflow-hidden relative flex">
             <motion.div initial={{ width: 0 }} animate={{ width: `${hp}%` }} transition={{ duration: 1, ease: 'easeOut' }}
-              className="flex items-center pl-3 rounded-l-xl"
+              className="flex items-center pl-3 shrink-0"
               style={{ backgroundColor: hc }}>
-              <span className="text-white text-sm sm:text-base font-black">{hp}%</span>
+              <span className="text-white text-sm sm:text-base font-black whitespace-nowrap">{hp}%</span>
             </motion.div>
             <motion.div initial={{ width: 0 }} animate={{ width: `${ap}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.15 }}
-              className="flex items-center justify-end pr-3 rounded-r-xl"
+              className="flex items-center justify-end pr-3 shrink-0"
               style={{ backgroundColor: ac }}>
-              <span className="text-white text-sm sm:text-base font-black">{ap}%</span>
+              <span className="text-white text-sm sm:text-base font-black whitespace-nowrap">{ap}%</span>
             </motion.div>
           </div>
         )}

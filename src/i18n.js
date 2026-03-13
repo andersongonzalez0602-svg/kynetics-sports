@@ -61,6 +61,23 @@ const resources = {
         ready: 'AI predictions ready — tap to explore',
         later: 'Check back later for upcoming matchups',
       },
+      features: {
+        title: 'Built Different',
+        items: [
+          {
+            title: 'Select Your Game',
+            desc: 'Browse the NBA calendar and pick any matchup. Every game is analyzed the moment it\'s scheduled.',
+          },
+          {
+            title: 'Analyze with AI',
+            desc: 'Our Kynetics Engine™ crunches 10,000+ data points per game to calculate real win probabilities.',
+          },
+          {
+            title: 'Compare Metrics',
+            desc: 'Streaks, head-to-head history, and team momentum — all visualized in one clean view.',
+          },
+        ],
+      },
       howItWorks: {
         tag: 'How It Works',
         title: 'From Data to Winning Decisions',
@@ -257,6 +274,23 @@ const resources = {
         today: 'Hoy',
         ready: 'Predicciones listas: toca para explorar',
         later: 'Vuelve más tarde para ver nuevos enfrentamientos',
+      },
+      features: {
+        title: 'Hecho diferente',
+        items: [
+          {
+            title: 'Elige tu juego',
+            desc: 'Explora el calendario de la NBA y elige cualquier enfrentamiento. Cada partido se analiza en cuanto se programa.',
+          },
+          {
+            title: 'Analiza con IA',
+            desc: 'Nuestro Kynetics Engine™ procesa más de 10.000 datos por partido para calcular probabilidades de victoria reales.',
+          },
+          {
+            title: 'Compara métricas',
+            desc: 'Rachas, historial de enfrentamientos y momento del equipo, todo visualizado en una vista limpia.',
+          },
+        ],
       },
       howItWorks: {
         tag: 'Cómo funciona',

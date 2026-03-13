@@ -1,8 +1,10 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, CalendarDays, BrainCircuit, BarChart3 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+
+const stepIcons = [CalendarDays, BrainCircuit, BarChart3]
 
 const HowItWorks = () => {
   const { t } = useTranslation()
@@ -34,24 +36,27 @@ const HowItWorks = () => {
 
           {/* Right - Steps */}
           <div className="flex flex-col gap-4">
-            {steps.map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="bg-white rounded-2xl p-6 border border-blue-100 shadow-sm flex items-start gap-5"
-              >
-                <div className="w-12 h-12 rounded-full bg-blue-50 text-navy flex items-center justify-center text-sm font-black shrink-0">
-                  {step.num}
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{step.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
-                </div>
-              </motion.div>
-            ))}
+            {steps.map((step, i) => {
+              const Icon = stepIcons[i] || CalendarDays
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.15 }}
+                  className="bg-white rounded-2xl p-6 border border-blue-100 shadow-sm flex items-start gap-5"
+                >
+                  <div className="w-12 h-12 rounded-full bg-blue-50 text-navy flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">{step.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </div>
