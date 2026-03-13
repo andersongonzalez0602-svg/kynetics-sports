@@ -107,6 +107,8 @@ const GameCard = ({ game, onOpenDetail, onDelete, isLocked }) => {
               style={{ backgroundColor: hc }}>
               <span className="text-white text-sm sm:text-base font-black whitespace-nowrap">{hp}%</span>
             </motion.div>
+            {/* White separator */}
+            <div className="w-[2px] shrink-0 bg-white z-10" />
             <motion.div initial={{ width: 0 }} animate={{ width: `${ap}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.15 }}
               className="flex items-center justify-end pr-3 shrink-0"
               style={{ backgroundColor: ac }}>
