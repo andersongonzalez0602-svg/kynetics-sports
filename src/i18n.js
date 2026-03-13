@@ -70,7 +70,7 @@ const resources = {
           },
           {
             title: 'Analyze with AI',
-            desc: 'Our Kynetics Engine™ crunches 10,000+ data points per game to calculate real win probabilities.',
+            desc: 'Our Kynetics Engine™ processes team form, injuries, rest days, and historical matchups to calculate real win probabilities.',
           },
           {
             title: 'Compare Metrics',
@@ -130,7 +130,7 @@ const resources = {
           },
           {
             q: 'Can I use this to bet on games?',
-            a: 'Kynetics Sports is a prediction and analysis platform, not a sportsbook. That said, if you enjoy sports betting, our picks can be a strong edge. We partner with licensed sportsbooks — check out our recommended platforms for the best current offers.',
+            a: 'No. Kynetics Sports is strictly a sports data and analytics platform, not a sportsbook. We do not accept wagers or hold funds. Our AI models are built to provide mathematical insights and probabilities for informational purposes. If you choose to use our data externally, we feature referral links to licensed sportsbooks which help support our platform. We strongly advocate for responsible gaming and encourage users to treat our predictions as analytical tools, not guarantees.',
           },
           {
             q: 'How often is data updated?',
@@ -284,7 +284,7 @@ const resources = {
           },
           {
             title: 'Analiza con IA',
-            desc: 'Nuestro Kynetics Engine™ procesa más de 10.000 datos por partido para calcular probabilidades de victoria reales.',
+            desc: 'Nuestro Kynetics Engine™ procesa forma del equipo, lesiones, días de descanso e historial de enfrentamientos para calcular probabilidades de victoria reales.',
           },
           {
             title: 'Compara métricas',
@@ -344,7 +344,7 @@ const resources = {
           },
           {
             q: '¿Puedo usar esto para apostar en partidos?',
-            a: 'Kynetics Sports es una plataforma de predicción y análisis, no una casa de apuestas. Dicho esto, si disfrutas las apuestas deportivas, nuestros picks pueden darte una ventaja real. Trabajamos con casas de apuestas licenciadas — revisa nuestras plataformas recomendadas para las mejores ofertas actuales.',
+            a: 'No. Kynetics Sports es estrictamente una plataforma de datos y análisis deportivo, no una casa de apuestas. No aceptamos apuestas ni gestionamos fondos. Nuestros modelos de IA están diseñados para ofrecer probabilidades e insights matemáticos con fines informativos. Si decides usar nuestros datos externamente, contamos con enlaces de referidos a casas de apuestas licenciadas que ayudan a sostener nuestra plataforma. Promovemos el juego responsable y animamos a los usuarios a tratar nuestras predicciones como herramientas analíticas, no como garantías.',
           },
           {
             q: '¿Con qué frecuencia se actualizan los datos?',
