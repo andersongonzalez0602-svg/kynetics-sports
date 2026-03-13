@@ -122,19 +122,19 @@ const resources = {
         items: [
           {
             q: 'How does the prediction model work?',
-            a: 'Our Kynetics Engine™ analyzes over 10,000 data points per game including player performance, historical matchups, team momentum, and more to calculate win probabilities.',
+            a: 'Our Kynetics Engine™ processes team performance trends, recent form, head-to-head history, home/away splits, rest days, and injury reports to generate win probabilities for each matchup.',
           },
           {
             q: 'How accurate are the predictions?',
-            a: 'Our AI maintains an average accuracy of 82% across all NBA predictions. Accuracy is measured daily and reported transparently on the homepage.',
+            a: 'We track every prediction publicly and update our record daily. You can see exactly how many we got right — no cherry-picking, no hidden results. Our current accuracy is posted live on the homepage.',
           },
           {
-            q: 'Is this a betting platform?',
-            a: 'No. Kynetics Sports is for entertainment purposes only. We provide data-driven insights and predictions but do not facilitate any form of betting.',
+            q: 'Can I use this to bet on games?',
+            a: 'Kynetics Sports is a prediction and analysis platform, not a sportsbook. That said, if you enjoy sports betting, our picks can be a strong edge. We partner with licensed sportsbooks — check out our recommended platforms for the best current offers.',
           },
           {
             q: 'How often is data updated?',
-            a: 'Game predictions are updated daily before each matchup. Live game statuses are updated in real-time during games.',
+            a: 'Predictions drop daily before games tip off. We factor in same-day injury news and lineup changes as close to game time as possible.',
           },
           {
             q: 'Can I participate in community voting?',
@@ -336,19 +336,19 @@ const resources = {
         items: [
           {
             q: '¿Cómo funciona el modelo de predicción?',
-            a: 'Nuestro Kynetics Engine™ analiza más de 10.000 datos por juego, incluyendo rendimiento de jugadores, historial de enfrentamientos, momento de cada equipo y más para calcular probabilidades de victoria.',
+            a: 'Nuestro Kynetics Engine™ procesa tendencias de rendimiento, forma reciente, historial de enfrentamientos, diferencia local/visitante, días de descanso y reportes de lesiones para generar probabilidades de victoria en cada partido.',
           },
           {
             q: '¿Qué tan precisas son las predicciones?',
-            a: 'Nuestra IA mantiene una precisión promedio del 82 % en todas las predicciones de la NBA. La precisión se mide diariamente y se reporta de forma transparente en la página de inicio.',
+            a: 'Registramos cada predicción públicamente y actualizamos nuestro récord a diario. Puedes ver exactamente cuántas acertamos, sin filtros ni resultados ocultos. Nuestra precisión actual se muestra en vivo en la página de inicio.',
           },
           {
-            q: '¿Es una plataforma de apuestas?',
-            a: 'No. Kynetics Sports es solo para fines de entretenimiento. Ofrecemos análisis y predicciones basadas en datos, pero no facilitamos ningún tipo de apuesta.',
+            q: '¿Puedo usar esto para apostar en partidos?',
+            a: 'Kynetics Sports es una plataforma de predicción y análisis, no una casa de apuestas. Dicho esto, si disfrutas las apuestas deportivas, nuestros picks pueden darte una ventaja real. Trabajamos con casas de apuestas licenciadas — revisa nuestras plataformas recomendadas para las mejores ofertas actuales.',
           },
           {
             q: '¿Con qué frecuencia se actualizan los datos?',
-            a: 'Las predicciones se actualizan a diario antes de cada juego. El estado en vivo se actualiza en tiempo real durante los partidos.',
+            a: 'Las predicciones se publican a diario antes de que comiencen los partidos. Incorporamos noticias de lesiones y cambios de alineación del mismo día lo más cerca posible a la hora del juego.',
           },
           {
             q: '¿Puedo participar en la votación de la comunidad?',
