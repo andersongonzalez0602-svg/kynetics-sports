@@ -57,6 +57,7 @@ const Navigation = () => {
             <div className="hidden md:flex items-center gap-8">
               <Link to="/" className={`text-sm font-semibold transition-colors ${location.pathname === '/' ? 'text-navy' : 'text-gray-500 hover:text-gray-800'}`}>{t('nav.home')}</Link>
               <Link to="/nba" className={`text-sm font-semibold transition-colors ${location.pathname === '/nba' ? 'text-navy' : 'text-gray-500 hover:text-gray-800'}`}>{t('nav.nba')}</Link>
+              <Link to="/history" className={`text-sm font-semibold transition-colors ${location.pathname === '/history' ? 'text-navy' : 'text-gray-500 hover:text-gray-800'}`}>{t('nav.history')}</Link>
 
               <div className="flex items-center gap-2 text-xs font-semibold text-gray-400">
                 <button onClick={() => changeLanguage('en')} className={i18n.language === 'en' ? 'text-navy' : 'hover:text-gray-700'}>EN</button>
@@ -90,6 +91,7 @@ const Navigation = () => {
               <div className="px-4 py-4 flex flex-col gap-3">
                 <Link to="/" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>{t('nav.home')}</Link>
                 <Link to="/nba" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>{t('nav.nba')}</Link>
+                <Link to="/history" className="text-sm font-semibold text-gray-700 py-2" onClick={() => setMobileOpen(false)}>{t('nav.history')}</Link>
                 <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 py-2">
                   <button onClick={() => changeLanguage('en')} className={i18n.language === 'en' ? 'text-navy' : ''}>EN</button>
                   <span className="text-gray-300">|</span>

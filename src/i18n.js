@@ -7,6 +7,7 @@ const resources = {
       nav: {
         home: 'Home',
         nba: 'NBA',
+        history: 'Our Record',
         login: 'Sign In',
         logout: 'Logout',
         admin: 'ADMIN',
@@ -221,6 +222,7 @@ const resources = {
       nav: {
         home: 'Inicio',
         nba: 'NBA',
+        history: 'Nuestro Récord',
         login: 'Iniciar sesión',
         logout: 'Cerrar sesión',
         admin: 'ADMIN',

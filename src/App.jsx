@@ -12,6 +12,7 @@ import CallToAction from '@/components/CallToAction'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
 import NBAPage from '@/components/NBAPage'
+import PredictionHistoryPage from '@/components/PredictionHistoryPage'
 import TermsPage from '@/components/legal/TermsPage'
 import PrivacyPage from '@/components/legal/PrivacyPage'
 import CookiePage from '@/components/legal/CookiePage'
@@ -43,6 +44,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/nba" element={<NBAPage />} />
+            <Route path="/history" element={<PredictionHistoryPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/cookies" element={<CookiePage />} />
