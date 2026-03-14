@@ -5,8 +5,9 @@ import { getMascotUrl } from '@/lib/mascots'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import Navigation from './Navigation'
+import { fmtML } from '@/hooks/useOdds'
 
-const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote, isLocked }) => {
+const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote, isLocked, odds }) => {
   const [voting, setVoting] = useState(false)
   const { t, i18n } = useTranslation()
   const { isLoggedIn } = useAuth()
@@ -197,12 +198,61 @@ const GameDetailModal = ({ game, isOpen, onClose, onVote, userVote, isLocked }) 
       <div className="flex items-center justify-center gap-2 mb-4">
         <TrendingUp className="w-4 h-4 text-navy" />
         <span className="text-sm font-bold text-gray-800">
-          {t('dashboard.aiTitle')} · {game.data_points || '10,000+'} {t('dashboard.dataPoints')}
+          {t('dashboard.aiTitle')}
         </span>
       </div>
 
-      <Bar h={barHeight} />
+      {/* Kynetics bar */}
+      <div className="mb-1">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('dashboard.aiPredictionLabel')}</span>
+          <span className="text-[10px] font-bold text-navy uppercase tracking-wide">Kynetics</span>
+        </div>
+        <Bar h={barHeight} />
+        {!showBlur && (
+          <div className="flex justify-between mt-1">
+            <span className="text-[10px] text-gray-400 font-bold uppercase">{game.home_team_abbr}</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase">{game.away_team_abbr}</span>
+          </div>
+        )}
+      </div>
 
+      {/* Market bar */}
+      {!showBlur && odds && (odds.homeProb || odds.awayProb) && (
+        <div className="mb-4 mt-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Market</span>
+            <div className="flex items-center gap-2">
+              {odds.homeML && <span className="text-[10px] font-black text-amber-600">{fmtML(odds.homeML)}</span>}
+              {odds.homeML && odds.awayML && <span className="text-[10px] text-gray-300">|</span>}
+              {odds.awayML && <span className="text-[10px] font-black text-amber-600">{fmtML(odds.awayML)}</span>}
+              <span className="text-[9px] text-gray-300 font-medium">DraftKings</span>
+            </div>
+          </div>
+          <div className="h-9 rounded-2xl overflow-hidden relative flex">
+            <div className="flex items-center pl-4 shrink-0 bg-amber-400" style={{ width: `${odds.homeProb || 50}%` }}>
+              <span className="text-white text-sm font-black whitespace-nowrap">{odds.homeProb}%</span>
+            </div>
+            <div className="w-[2px] shrink-0 bg-white z-10" />
+            <div className="flex items-center justify-end pr-4 shrink-0 bg-amber-400" style={{ width: `${odds.awayProb || 50}%` }}>
+              <span className="text-white text-sm font-black whitespace-nowrap">{odds.awayProb}%</span>
+            </div>
+          </div>
+          {Math.abs(hp - (odds.homeProb || 50)) >= 10 && (
+            <div className="mt-2 flex items-center gap-1.5 bg-navy/5 border border-navy/10 rounded-lg px-3 py-2">
+              <div className="w-2 h-2 rounded-full bg-navy shrink-0" />
+              <span className="text-xs font-bold text-navy">
+                {hp > (odds.homeProb || 50)
+                  ? `We rate ${hn} ${hp - (odds.homeProb || 50)}% higher than market — potential value`
+                  : `We rate ${an} ${(odds.homeProb || 50) - hp}% lower than market — potential value`
+                }
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Game info + H2H */}
       <div className="grid grid-cols-2 gap-3 mt-5 mb-5">
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <p className={`text-[10px] font-bold text-gray-400 uppercase ${isMobile ? 'tracking-wider' : 'tracking-widest'} mb-2`}>

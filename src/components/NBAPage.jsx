@@ -6,6 +6,7 @@ import GameDetailModal from './GameDetailModal'
 import AdminJSONPanel from './AdminJSONPanel'
 import { useNBAGames } from '@/hooks/useNBAGames'
 import { useUserPredictions } from '@/hooks/useUserPredictions'
+import { useOdds } from '@/hooks/useOdds'
 import { useAuth } from '@/contexts/AuthContext'
 import { getEasternDateString } from '@/lib/dateUtils'
 import { useTranslation } from 'react-i18next'
@@ -21,6 +22,7 @@ const NBAPage = () => {
   const { session, isLoggedIn } = useAuth()
   const { games, loading, error, fetchGamesByDate, deleteGame } = useNBAGames()
   const { userVotes, fetchUserVotes, castVote, setSession } = useUserPredictions()
+  const { getGameOdds } = useOdds()
 
   // Keep prediction hook's session ref in sync — but this does NOT trigger re-renders
   useEffect(() => {
@@ -170,7 +172,15 @@ const NBAPage = () => {
             <AnimatePresence mode="popLayout">
               {filtered.map((game, i) => (
                 <motion.div key={game.id} layout initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, scale:0.95 }} transition={{ duration:0.3, delay:i*0.05 }}>
-                  <GameCard game={game} onOpenDetail={openModal} onDelete={async id => { const r = await deleteGame(id); if(!r.success) alert(r.error) }} isLocked={i > 0} />
+                  <GameCard
+                    game={game}
+                    onOpenDetail={openModal}
+                    onDelete={async id => { const r = await deleteGame(id); if(!r.success) alert(r.error) }}
+                    isLocked={i > 0}
+                    odds={getGameOdds(game.home_team_abbr, game.away_team_abbr)}
+                    onVote={handleVote}
+                    userVote={userVotes[game.id] || null}
+                  />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -192,6 +202,7 @@ const NBAPage = () => {
         onVote={handleVote}
         userVote={selectedGameId ? userVotes[selectedGameId] : null}
         isLocked={selectedGame ? filtered.indexOf(selectedGame) > 0 : false}
+        odds={selectedGame ? getGameOdds(selectedGame.home_team_abbr, selectedGame.away_team_abbr) : null}
       />
       <AdminJSONPanel onGamesUpdated={() => fetchGamesByDate(currentDate)} currentDate={currentDate} />
     </div>
