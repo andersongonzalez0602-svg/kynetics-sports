@@ -302,10 +302,16 @@ const PredictionHistoryPage = () => {
             <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
               <Target className="w-3 h-3" /> Prediction Record
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-3">Every Pick. Every Result.</h1>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-3">Our Prediction Record</h1>
             <p className="text-blue-200 text-lg max-w-xl leading-relaxed">
-              We log every prediction before tip-off — wins and losses. No cherry-picking, no deleted games. This is our full public record.
+              Tracking every game since <span className="text-white font-bold">March 8, 2026</span> — the launch date of the final version of the Kynetics Engine™. Every prediction logged before tip-off, every result posted after the buzzer.
             </p>
+            <div className="mt-5 bg-white/10 border border-white/20 rounded-xl px-4 py-3 max-w-xl">
+              <p className="text-white/90 text-xs leading-relaxed">
+                <span className="font-black text-white uppercase tracking-wide">⚠ Disclaimer — </span>
+                The Kynetics Engine™ provides probability estimates based on publicly available data. No prediction is a guarantee. Sports outcomes are inherently uncertain — even an 85% probability means the other team wins 1 in 6 times. Use our analysis as an informational tool only, never as financial advice.
+              </p>
+            </div>
           </motion.div>
         </div>
       </div>
@@ -441,10 +447,41 @@ const PredictionHistoryPage = () => {
             className="mt-6 p-5 bg-navy/5 rounded-2xl border border-navy/10 flex items-start gap-3">
             <TrendingUp className="w-5 h-5 text-navy shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-bold text-navy mb-1">Full transparency, always.</p>
+              <p className="text-sm font-bold text-navy mb-1">How this record works.</p>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Every prediction on this page was published before the game tipped off. We never alter, delete, or hide results. Wins and losses are both shown. Our record speaks for itself.
+                Every prediction is published before tip-off and logged with a timestamp. Results are entered after the final buzzer and cannot be backdated. We show every game — correct and incorrect — from our first day of tracking, March 8, 2026. The Kynetics Engine™ is a probabilistic model, not a guarantee. Past accuracy does not predict future results.
               </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* GitHub verification section */}
+        {!loading && games.length > 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+            className="mt-4 p-5 bg-gray-900 rounded-2xl flex items-start gap-4">
+            {/* GitHub icon */}
+            <div className="shrink-0 mt-0.5">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="text-white text-sm font-bold mb-1">Want to verify our predictions yourself?</p>
+              <p className="text-gray-400 text-xs leading-relaxed mb-3">
+                Every daily prediction JSON is published to our public GitHub repository before games tip off. Each file is cryptographically timestamped by GitHub — nobody can alter a past prediction without it being visible in the commit history. This is our proof of integrity.
+              </p>
+              <a
+                href="https://github.com/andersongonzalez0602/kynetics-predictions"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="inline-flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+                View prediction history on GitHub →
+              </a>
             </div>
           </motion.div>
         )}
