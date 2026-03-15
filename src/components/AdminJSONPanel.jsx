@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Settings, X, Upload, Trash2, Eye, Check, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNBAGames } from '@/hooks/useNBAGames'
+import { commitPredictionsToGitHub } from '@/lib/githubCommit'
 
 const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
   const { isAdmin } = useAuth()
@@ -44,8 +45,19 @@ const AdminJSONPanel = ({ onGamesUpdated, currentDate }) => {
     if (!preview) return
     setLoading(true); setError(null)
     const result = await insertGames(preview)
-    if (result.success) { setSuccess(`${preview.length} games published!`); setPreview(null); setJsonInput(''); onGamesUpdated?.() }
-    else setError(result.error)
+    if (result.success) {
+      // Commit predictions to GitHub IMMEDIATELY — this timestamp proves we posted before tip-off
+      const date = preview[0]?.game_date
+      if (date) {
+        await commitPredictionsToGitHub(date, preview)
+      }
+      setSuccess(`${preview.length} games published & committed to GitHub ✓`)
+      setPreview(null)
+      setJsonInput('')
+      onGamesUpdated?.()
+    } else {
+      setError(result.error)
+    }
     setLoading(false)
   }
 

@@ -1,13 +1,14 @@
 // Vercel Serverless Function — lives at /api/commit-results
-// The GITHUB_TOKEN env var is server-side only (no VITE_ prefix)
+// GITHUB_TOKEN env var is server-side only (no VITE_ prefix)
 
 const GITHUB_OWNER = 'andersongonzalez0602-svg'
 const GITHUB_REPO = 'kynetics-predictions'
 const BRANCH = 'main'
 
-const buildJSON = (date, games) => ({
+const buildJSON = (date, games, isPredictionCommit) => ({
   game_date: date,
-  committed_at: new Date().toISOString(),
+  published_at: new Date().toISOString(),
+  type: isPredictionCommit ? 'predictions' : 'results',
   games: games.map(g => ({
     home: {
       name: g.home_team_name,
@@ -32,7 +33,7 @@ const buildJSON = (date, games) => ({
       reason_es: g.reason_text_es,
       head_to_head: g.head_to_head,
     },
-    result: {
+    result: isPredictionCommit ? null : {
       actual_result: g.actual_result || null,
       correct: g.actual_result
         ? (g.home_win_pct >= 50 ? 'home' : 'away') === g.actual_result
@@ -47,7 +48,6 @@ const buildJSON = (date, games) => ({
 })
 
 export default async function handler(req, res) {
-  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -57,13 +57,15 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'GitHub token not configured on server' })
   }
 
-  const { date, games } = req.body
+  const { date, games, isPredictionCommit } = req.body
   if (!date || !games) {
     return res.status(400).json({ error: 'Missing date or games' })
   }
 
   try {
-    const filePath = `${date.slice(0, 4)}/${date.slice(5, 7)}/${date}.json`
+    // Use separate files: predictions/2026/03/2026-03-15.json vs results/2026/03/2026-03-15.json
+    const folder = isPredictionCommit ? 'predictions' : 'results'
+    const filePath = `${folder}/${date.slice(0, 4)}/${date.slice(5, 7)}/${date}.json`
     const apiBase = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`
 
     const headers = {
@@ -72,7 +74,7 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json',
     }
 
-    // Check if file already exists (need SHA for updates)
+    // Check if file exists (need SHA for updates)
     let existingSha = null
     try {
       const checkRes = await fetch(apiBase, { headers })
@@ -84,17 +86,23 @@ export default async function handler(req, res) {
       // File doesn't exist yet — fine
     }
 
-    const content = buildJSON(date, games)
+    const content = buildJSON(date, games, isPredictionCommit)
     const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))))
 
-    const resolvedCount = games.filter(g => g.actual_result).length
-    const correctCount = games.filter(g => {
-      if (!g.actual_result) return false
-      return (g.home_win_pct >= 50 ? 'home' : 'away') === g.actual_result
-    }).length
+    let commitMessage
+    if (isPredictionCommit) {
+      commitMessage = `Predictions ${date} — ${games.length} game${games.length !== 1 ? 's' : ''} published before tip-off`
+    } else {
+      const resolvedCount = games.filter(g => g.actual_result).length
+      const correctCount = games.filter(g => {
+        if (!g.actual_result) return false
+        return (g.home_win_pct >= 50 ? 'home' : 'away') === g.actual_result
+      }).length
+      commitMessage = `Results ${date} — ${correctCount}/${resolvedCount} correct`
+    }
 
     const body = {
-      message: `Results ${date} — ${correctCount}/${resolvedCount} correct`,
+      message: commitMessage,
       content: contentBase64,
       branch: BRANCH,
       ...(existingSha ? { sha: existingSha } : {}),
