@@ -135,7 +135,7 @@ const resources = {
           },
           {
             q: 'How often is data updated?',
-            a: 'Predictions drop daily before games tip off. We factor in same-day injury news and lineup changes as close to game time as possible.',
+            a: 'Game predictions are updated daily before each matchup. Live game statuses are updated in real-time during games.',
           },
           {
             q: 'Can I participate in community voting?',
@@ -350,7 +350,7 @@ const resources = {
           },
           {
             q: '¿Con qué frecuencia se actualizan los datos?',
-            a: 'Las predicciones se publican a diario antes de que comiencen los partidos. Incorporamos noticias de lesiones y cambios de alineación del mismo día lo más cerca posible a la hora del juego.',
+            a: 'Las predicciones se actualizan a diario antes de cada juego. El estado en vivo se actualiza en tiempo real durante los partidos.',
           },
           {
             q: '¿Puedo participar en la votación de la comunidad?',

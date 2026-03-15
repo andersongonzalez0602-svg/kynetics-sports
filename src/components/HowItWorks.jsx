@@ -14,12 +14,7 @@ const HowItWorks = () => {
     <section className="bg-blue-50/30 py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-16 items-center">
-          {/* Left */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
+          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             <div className="inline-block bg-white border border-blue-100 text-navy px-3 py-1 rounded text-xs font-bold tracking-widest uppercase mb-6">
               {t('howItWorks.tag')}
             </div>
@@ -34,19 +29,12 @@ const HowItWorks = () => {
             </Link>
           </motion.div>
 
-          {/* Right - Steps */}
           <div className="flex flex-col gap-4">
             {steps.map((step, i) => {
               const Icon = stepIcons[i] || CalendarDays
               return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.15 }}
-                  className="bg-white rounded-2xl p-6 border border-blue-100 shadow-sm flex items-start gap-5"
-                >
+                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+                  className="bg-white rounded-2xl p-6 border border-blue-100 shadow-sm flex items-start gap-5">
                   <div className="w-12 h-12 rounded-full bg-blue-50 text-navy flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5" />
                   </div>
