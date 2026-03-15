@@ -23,15 +23,15 @@ const getActualWinner = (game) => {
 }
 const getConfidence = (game) => {
   const pct = Math.max(game.home_win_pct || 50, game.away_win_pct || 50)
-  if (pct >= 80) return { label: t('history.confidenceHigh'), color: 'text-emerald-600 bg-emerald-50' }
-  if (pct >= 65) return { label: t('history.confidenceMedium'), color: 'text-amber-600 bg-amber-50' }
-  return { label: t('history.confidenceLow'), color: 'text-gray-500 bg-gray-100' }
+  if (pct >= 80) return { label: 'High', color: 'text-emerald-600 bg-emerald-50' }
+  if (pct >= 65) return { label: 'Medium', color: 'text-amber-600 bg-amber-50' }
+  return { label: 'Low', color: 'text-gray-500 bg-gray-100' }
 }
 
 const ResultBadge = ({ result }) => {
-  if (result === 'correct') return <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><CheckCircle2 className="w-3 h-3" /> {t('history.resultCorrect')}</span>
-  if (result === 'incorrect') return <span className="inline-flex items-center gap-1 text-red bg-red/10 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><XCircle className="w-3 h-3" /> {t('history.resultWrong')}</span>
-  return <span className="inline-flex items-center gap-1 text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><Minus className="w-3 h-3" /> {t('history.resultPending')}</span>
+  if (result === 'correct') return <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><CheckCircle2 className="w-3 h-3" /> Correct</span>
+  if (result === 'incorrect') return <span className="inline-flex items-center gap-1 text-red bg-red/10 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><XCircle className="w-3 h-3" /> Wrong</span>
+  return <span className="inline-flex items-center gap-1 text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><Minus className="w-3 h-3" /> Pending</span>
 }
 
 const AdminResultsPanel = ({ games, onResultSaved }) => {
