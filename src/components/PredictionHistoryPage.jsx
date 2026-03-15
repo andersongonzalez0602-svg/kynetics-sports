@@ -81,8 +81,11 @@ const AdminResultsPanel = ({ games, onResultSaved }) => {
       const allSaved = {}
       pending.forEach(g => { allSaved[g.id] = true })
       setSaved(allSaved)
-      setTimeout(() => setSaved({}), 2500)
-      onResultSaved?.()
+      // Only refresh AFTER everything is saved — prevents deselecting mid-flow
+      setTimeout(() => {
+        setSaved({})
+        onResultSaved?.()
+      }, 1500)
       // Auto-commit each affected date to GitHub
       const affectedDates = [...new Set(pending.map(g => g.game_date))]
       for (const date of affectedDates) {
@@ -131,9 +134,29 @@ const AdminResultsPanel = ({ games, onResultSaved }) => {
                 )}
                 {dates.map(date => (
                   <div key={date} className="mb-5">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-xs font-black text-gray-600 uppercase tracking-wider">{formatDate(date)}</span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-xs font-black text-gray-600 uppercase tracking-wider">{formatDate(date)}</span>
+                      </div>
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => {
+                            const updates = {}
+                            byDate[date].forEach(g => { updates[g.id] = g.home_win_pct >= 50 ? 'home' : 'away' })
+                            setResults(r => ({ ...r, ...updates }))
+                          }}
+                          className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 transition-colors whitespace-nowrap"
+                        >✓ All our picks won</button>
+                        <button
+                          onClick={() => {
+                            const updates = {}
+                            byDate[date].forEach(g => { updates[g.id] = g.home_win_pct >= 50 ? 'away' : 'home' })
+                            setResults(r => ({ ...r, ...updates }))
+                          }}
+                          className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red/5 text-red border border-red/20 hover:bg-red/10 transition-colors whitespace-nowrap"
+                        >✗ All lost</button>
+                      </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       {byDate[date].map(game => {
@@ -158,12 +181,7 @@ const AdminResultsPanel = ({ games, onResultSaved }) => {
                               <button onClick={() => setResults(r => ({ ...r, [game.id]: 'away' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all border ${currentVal === 'away' ? 'bg-navy text-white border-navy' : 'bg-white text-gray-600 border-gray-200 hover:border-navy/30'}`}>{game.away_team_abbr} Won</button>
                               {currentVal && <button onClick={() => setResults(r => ({ ...r, [game.id]: '' }))} className="px-2.5 py-2 rounded-lg text-xs text-gray-400 border border-gray-200 hover:border-red/30 hover:text-red transition-colors" title="Clear"><X className="w-3.5 h-3.5" /></button>}
                             </div>
-                            {isDirty && currentVal && (
-                              <button onClick={() => handleSaveOne(game)} disabled={isSaving} className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors disabled:opacity-60">
-                                {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : isSaved ? <Check className="w-3 h-3" /> : <Save className="w-3 h-3" />}
-                                {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'}
-                              </button>
-                            )}
+
                             {game.actual_result && !isDirty && <div className="mt-2 flex items-center gap-1.5 text-emerald-600 text-[10px] font-bold"><Check className="w-3 h-3" />Result recorded: {game.actual_result === 'home' ? game.home_team_abbr : game.away_team_abbr} won</div>}
                           </div>
                         )
