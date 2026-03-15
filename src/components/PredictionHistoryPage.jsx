@@ -2,7 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2, XCircle, Minus, TrendingUp, Calendar, Target, Flame, ChevronDown, ChevronUp, Settings, X, Check, AlertCircle, Loader2, Save } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
+import { commitResultsToGitHub } from '@/lib/githubCommit'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from 'react-i18next'
 
 const formatDate = (dateStr) => {
   const d = new Date(dateStr + 'T12:00:00')
@@ -21,18 +23,19 @@ const getActualWinner = (game) => {
 }
 const getConfidence = (game) => {
   const pct = Math.max(game.home_win_pct || 50, game.away_win_pct || 50)
-  if (pct >= 80) return { label: 'High', color: 'text-emerald-600 bg-emerald-50' }
-  if (pct >= 65) return { label: 'Medium', color: 'text-amber-600 bg-amber-50' }
-  return { label: 'Low', color: 'text-gray-500 bg-gray-100' }
+  if (pct >= 80) return { label: t('history.confidenceHigh'), color: 'text-emerald-600 bg-emerald-50' }
+  if (pct >= 65) return { label: t('history.confidenceMedium'), color: 'text-amber-600 bg-amber-50' }
+  return { label: t('history.confidenceLow'), color: 'text-gray-500 bg-gray-100' }
 }
 
 const ResultBadge = ({ result }) => {
-  if (result === 'correct') return <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><CheckCircle2 className="w-3 h-3" /> Correct</span>
-  if (result === 'incorrect') return <span className="inline-flex items-center gap-1 text-red bg-red/10 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><XCircle className="w-3 h-3" /> Wrong</span>
-  return <span className="inline-flex items-center gap-1 text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><Minus className="w-3 h-3" /> Pending</span>
+  if (result === 'correct') return <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><CheckCircle2 className="w-3 h-3" /> {t('history.resultCorrect')}</span>
+  if (result === 'incorrect') return <span className="inline-flex items-center gap-1 text-red bg-red/10 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><XCircle className="w-3 h-3" /> {t('history.resultWrong')}</span>
+  return <span className="inline-flex items-center gap-1 text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"><Minus className="w-3 h-3" /> {t('history.resultPending')}</span>
 }
 
 const AdminResultsPanel = ({ games, onResultSaved }) => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [results, setResults] = useState({})
   const [saving, setSaving] = useState({})
@@ -56,6 +59,9 @@ const AdminResultsPanel = ({ games, onResultSaved }) => {
       setSaved(s => ({ ...s, [game.id]: true }))
       setTimeout(() => setSaved(s => ({ ...s, [game.id]: false })), 2000)
       onResultSaved?.()
+      // Auto-commit to GitHub — fetch all games for this date and push JSON
+      const { data: dayGames } = await supabase.from('nba_games').select('*').eq('game_date', game.game_date)
+      if (dayGames) await commitResultsToGitHub(game.game_date, dayGames)
     } catch (e) { setError(e.message) }
     finally { setSaving(s => ({ ...s, [game.id]: false })) }
   }
@@ -77,6 +83,12 @@ const AdminResultsPanel = ({ games, onResultSaved }) => {
       setSaved(allSaved)
       setTimeout(() => setSaved({}), 2500)
       onResultSaved?.()
+      // Auto-commit each affected date to GitHub
+      const affectedDates = [...new Set(pending.map(g => g.game_date))]
+      for (const date of affectedDates) {
+        const { data: dayGames } = await supabase.from('nba_games').select('*').eq('game_date', date)
+        if (dayGames) await commitResultsToGitHub(date, dayGames)
+      }
     } catch (e) { setError(e.message) }
     finally { setSaving({}) }
   }
@@ -95,7 +107,7 @@ const AdminResultsPanel = ({ games, onResultSaved }) => {
       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-navy text-white px-4 py-3 rounded-full shadow-lg shadow-navy/30 hover:bg-navy-dark transition-colors">
         <Settings className="w-5 h-5" />
-        <span className="text-sm font-bold">Update Results</span>
+        <span className="text-sm font-bold">{t('history.updateResults')}</span>
         {pendingCount > 0 && <span className="bg-red text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">{pendingCount > 9 ? '9+' : pendingCount}</span>}
       </motion.button>
       <AnimatePresence>
@@ -171,6 +183,7 @@ const AdminResultsPanel = ({ games, onResultSaved }) => {
 
 const PredictionHistoryPage = () => {
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -218,16 +231,15 @@ const PredictionHistoryPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
-              <Target className="w-3 h-3" /> Prediction Record
+              <Target className="w-3 h-3" /> {t('history.badge')}
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-3">Our Prediction Record</h1>
+<h1 className="text-4xl md:text-5xl font-black text-white mb-3">{t('history.title')}</h1>
             <p className="text-blue-200 text-lg max-w-xl leading-relaxed">
-              Tracking every game since <span className="text-white font-bold">March 8, 2026</span> — the launch date of the final version of the Kynetics Engine™. Every prediction logged before tip-off, every result posted after the buzzer.
+              {t('history.subtitle')} <span className="text-white font-bold">{t('history.since')}</span> {t('history.sinceReason')} <span className="text-white font-bold">{t('history.since2')}</span>{t('history.since2Reason')}
             </p>
             <div className="mt-5 bg-white/10 border border-white/20 rounded-xl px-4 py-3 max-w-xl">
               <p className="text-white/90 text-xs leading-relaxed">
-                <span className="font-black text-white uppercase tracking-wide">⚠ Disclaimer — </span>
-                The Kynetics Engine™ provides probability estimates based on publicly available data. No prediction is a guarantee. Sports outcomes are inherently uncertain — even an 85% probability means the other team wins 1 in 6 times. Use our analysis as an informational tool only, never as financial advice.
+                {t('history.disclaimer')}
               </p>
             </div>
           </motion.div>
@@ -237,10 +249,10 @@ const PredictionHistoryPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { icon: <Target className="w-5 h-5 text-navy" />, label: 'Overall Accuracy', value: loading ? '—' : `${accuracy}%`, sub: `${correct.length} of ${resolved.length} correct`, highlight: true },
-            { icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />, label: 'Correct Picks', value: loading ? '—' : correct.length, sub: 'All-time correct' },
-            { icon: <XCircle className="w-5 h-5 text-red" />, label: 'Incorrect Picks', value: loading ? '—' : incorrect.length, sub: 'All-time incorrect' },
-            { icon: <Flame className="w-5 h-5 text-orange-500" />, label: 'Current Streak', value: loading ? '—' : streak > 0 ? `${streak}d` : '—', sub: 'Consecutive perfect days' },
+            { icon: <Target className="w-5 h-5 text-navy" />, label: t('history.accuracy'), value: loading ? '—' : `${accuracy}%`, sub: `${correct.length} of ${resolved.length} correct`, highlight: true },
+            { icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />, label: t('history.correct'), value: loading ? '—' : correct.length, sub: t('history.correctSub') },
+            { icon: <XCircle className="w-5 h-5 text-red" />, label: t('history.incorrect'), value: loading ? '—' : incorrect.length, sub: t('history.incorrectSub') },
+            { icon: <Flame className="w-5 h-5 text-orange-500" />, label: t('history.streak'), value: loading ? '—' : streak > 0 ? `${streak}d` : '—', sub: t('history.streakSub') },
           ].map((stat, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
               className={`bg-white rounded-2xl p-5 shadow-sm border ${stat.highlight ? 'border-navy/20' : 'border-gray-100'}`}>
@@ -254,13 +266,13 @@ const PredictionHistoryPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {loading && <div className="flex items-center justify-center py-20 gap-3 text-gray-400"><Loader2 className="w-5 h-5 animate-spin" /><span className="font-semibold">Loading history...</span></div>}
+        {loading && <div className="flex items-center justify-center py-20 gap-3 text-gray-400"><Loader2 className="w-5 h-5 animate-spin" /><span className="font-semibold">{t('history.loading')}</span></div>}
         {error && <div className="text-center py-20 text-red font-semibold">Error: {error}</div>}
         {!loading && !error && dates.length === 0 && (
           <div className="text-center py-20">
             <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-400 font-semibold text-lg">No prediction history yet.</p>
-            <p className="text-gray-300 text-sm mt-1">Check back after today's games.</p>
+            <p className="text-gray-400 font-semibold text-lg">{t('history.noHistory')}</p>
+            <p className="text-gray-300 text-sm mt-1">{t('history.noHistorySub')}</p>
           </div>
         )}
 
@@ -296,11 +308,11 @@ const PredictionHistoryPage = () => {
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                     <div className="bg-white rounded-b-2xl border border-t-0 border-gray-100 shadow-sm overflow-hidden">
                       <div className="hidden md:grid grid-cols-12 gap-2 px-5 py-3 bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        <div className="col-span-4">Matchup</div>
-                        <div className="col-span-3">Our Pick</div>
-                        <div className="col-span-2 text-center">Confidence</div>
-                        <div className="col-span-2">Actual Winner</div>
-                        <div className="col-span-1 text-right">Result</div>
+                        <div className="col-span-4">{t('history.matchup')}</div>
+                        <div className="col-span-3">{t('history.ourPick')}</div>
+                        <div className="col-span-2 text-center">{t('history.confidence')}</div>
+                        <div className="col-span-2">{t('history.actualWinner')}</div>
+                        <div className="col-span-1 text-right">{t('history.result')}</div>
                       </div>
                       {dayGames.map((game, gi) => {
                         const result = getGameResult(game)
@@ -360,9 +372,9 @@ const PredictionHistoryPage = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-6 p-5 bg-navy/5 rounded-2xl border border-navy/10 flex items-start gap-3">
             <TrendingUp className="w-5 h-5 text-navy shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-bold text-navy mb-1">How this record works.</p>
+              <p className="text-sm font-bold text-navy mb-1">{t('history.howItWorks')}</p>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Every prediction is published before tip-off and logged with a timestamp. Results are entered after the final buzzer and cannot be backdated. We show every game — correct and incorrect — from our first day of tracking, March 8, 2026. The Kynetics Engine™ is a probabilistic model, not a guarantee. Past accuracy does not predict future results.
+                {t('history.howItWorksBody')}
               </p>
             </div>
           </motion.div>
@@ -376,16 +388,16 @@ const PredictionHistoryPage = () => {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-white text-sm font-bold mb-1">Want to verify our predictions yourself?</p>
+              <p className="text-white text-sm font-bold mb-1">{t('history.githubTitle')}</p>
               <p className="text-gray-400 text-xs leading-relaxed mb-3">
-                Every daily prediction JSON is published to our public GitHub repository before games tip off. Each file is cryptographically timestamped by GitHub — nobody can alter a past prediction without it being visible in the commit history.
+                {t('history.githubBody')}
               </p>
-              <a href="https://github.com/andersongonzalez0602/kynetics-predictions" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/andersongonzalez0602-svg/kynetics-predictions" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
-                View prediction history on GitHub →
+                {t('history.githubBtn')}
               </a>
             </div>
           </motion.div>
